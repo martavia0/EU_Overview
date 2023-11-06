@@ -1,0 +1,13 @@
+n	Site	Acronym	Type	Lat	Lon	Height	Country	Period_start	Period_end	NRPM1	PMF_Mats	PMF_outp	Type	Lens	Vaporiser	CE	TR	Notes
+1	Athens-NOA	NOA	UB	-	-	-	Greece	01/01/2017	01/12/2021	Y	Y	N	Q	PM1	Standard	CDCE	30'	Original in start time. Fixed. 
+2	Bologna	BO	UB	44º31'20''	11º20'18''	-	Italy	17/11/2011	14/07/2021	Y	Y	Y	AMS	PM1	Standard	CDCE	5'	
+3	Magurele - Bucharest	INO	SU				Romania	01/01/2016	10/08/2022	Y	Y	N	Q	PM1	Standard	CDCE	30'	
+4	Capogranitola	CGR	C	37.5753	12.6595	-	Italy	07/04/2016	25/04/2016	Y	Y	Y	AMS	PM1	Standard	CDCE	5'	
+5	Hohenpeissenberg	HPB	RB	47.8	11	985	Germany	01/01/2014	31/12/2022	Y	Y	N	Q	PM1	Standard	CE0.5	5'	PMF
+6	Hyytiala	SMR	RB	61.8	24.3	181	Finland	??	??	??	??	??	??	??	??	??	??	Own format
+7	JRC-Ispra	IPR	RB	45.8	8.6	223	Italy	01/03/2013	28/02/2014	Y	Y	Y	Q	PM1	Standard	CDCE	30'	Uncertainties are missing
+8	Lille	ATOLL	SU	50.61	3.14	70	France	11/10/2016	31/12/2020	Y	Y	Y	Q	PM1	Standard	CDCE	30'	Output profiles are missing. 
+9	Milano Pascal	MI	UB	45º28'43''	9º14'4''	-	Italy	03/02/2014	28/02/2014	Y	Y	Y	AMS	PM1	Standard	CDCE	5'	
+10	Mt. Cimone	CMN	M	44º12'	10º42'	2165	Italy	11/06/2012	09/07/2012	Y	Y	Y	AMS	PM1	Standard	CDCE	5'	-
+11	Nicosia	CAO-NIC	UB	35º2'19.35''	33º3'27.95''	352	Cyprus	07/12/2018	31/05/2019	Y	Y	Y	Q	PM1	Standard	CDCE	30'	Pikridas did something strange with PMF
+12	Padova Granze	PD	UB	45º22'39''	11º56'24''	-	Italy	26/01/2014	28/02/2014	Y	N	Y	AMS	PM1	Standard	CDCE	30'	PMF Mats are missing. 

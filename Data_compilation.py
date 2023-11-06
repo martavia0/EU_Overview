@@ -23,8 +23,14 @@ trt.Hello()
 print(trt.x)
 #%% Import Composition files
 path_data_mac="/Users/martaviagonzalez/Documents/GitHub/EU_Overview/Data/All/"
-os.chdir(path_data_mac)
-all_files=glob.glob(path_data_mac+'*Composition.txt')
+path_data_wdw="C:/Users/maria/Documents/GitHub/EU_Overview/Data/All/"
+#os.chdir(path_data_mac)
+os.chdir(path_data_wdw)
+all_files=glob.glob(path_data_wdw+'*Composition.txt')
 li_files = [pd.read_csv(i, sep='\t') for i in all_files]
-li_site_names = []
+li_site_names = [j[-28:-25] for j in all_files]
+li_site_names[0]='ATOLL'
+li_site_names[1]='BO'
+li_site_names[8]='MI'
+li_site_names[10]='PD'
 #%%
