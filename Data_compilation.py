@@ -59,16 +59,20 @@ metadata = pd.read_csv("Sites_metadata.txt", sep='\t')
 #%% We reorder the chem_comp df with the same order as in metadata.
 chem_comp=chem_comp.reindex(metadata['Acronym']) 
 chem_comp.drop(labels='SMR', inplace=True) #We remove hyttyala at the moment
-#%% Average plots compound
+#%% Average plots compound - Boxplots
 os.chdir(path_folder_mac + "Preliminar Plots/Chemical Composition/")
-comp='Chl'
+comp='Org'
+li_dfs=[]
 chem_compound,chem_compound_t, chem_dt=pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 for i in range(0,len(chem_comp)):
     df1 = pd.DataFrame(chem_comp.iloc[i][0])
     df1.reset_index(inplace=True, drop=True)
+    df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True)
     chem_compound=pd.concat([chem_compound, df1[comp]], axis=1)
     chem_dt = pd.concat([chem_dt, pd.to_datetime(df1['Time (Local)'], dayfirst=True)], axis=0)
     chem_compound_t=pd.concat([chem_compound_t, df1[comp]], axis=0,)
+    df1.index=df1.datetime
+    li_dfs.append(df1)
 chem_compound.columns=chem_comp.index
 chem_compound_t.columns=['All sites']
 chem_dt.columns=['All times']
@@ -90,12 +94,23 @@ axs[1,1].set_title('')
 fig.suptitle(comp, fontsize=16)
 axs[0,1].legend(['Urban site', 'Non-Urban site'], loc='upper right', labelcolor=['k', 'grey'])
 plt.savefig('Boxplots_'+comp+'.png')
-#%%
+li_dfs=[j.drop('datetime', inplace=True,axis=1) for j in li_dfs]
 
+#%% Filtering process
+nr_comp=['Org', 'SO4', 'NO3', 'NH4', 'Chl']
+DL=pd.Series([0.05, 0.05, 0.05, 0.05, 0.05], index=nr_comp)
+max_conc=pd.Series([30,20,20,10,5], index=nr_comp)
 
-
-
-
+for j in range(0, len(li_dfs)):
+    df=li_dfs[i]
+    df=df.reindex(nr_comp, axis=1) 
+    DL_mask = (df['Org']>=-DL['Org']) & (df['SO4']>=-DL['SO4']) & (df['NO3']>=-DL['NO3']) & (df['NH4']>=-DL['NH4'])& (df['Chl']>=-DL['Chl'])
+    M_mask = (df['Org']<=-max_conc['Org']) & (df['SO4']<=-max_conc['SO4']) & (df['NO3']<=-max_conc['NO3']) & (df['NH4']<=-max_conc['NH4'])& (df['Chl']<=-max_conc['Chl'])
+    df_f = df.loc[DL_mask]
+    df_f = df_f.loc[M_mask]
+    df_f.plot(subplots=True)
+#%% Maybe now I should put them in teh daily pattern
+min_date = pd.date_range(start='01/01/2010', end = '31/12/2023', freq='D')
 
 
 
