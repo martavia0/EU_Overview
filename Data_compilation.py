@@ -111,10 +111,31 @@ for j in range(0, len(li_dfs)):
     df_f.plot(subplots=True)
 #%% Maybe now I should put them in teh daily pattern
 min_date = pd.date_range(start='01/01/2010', end = '31/12/2023', freq='D')
-
-
-
-
+# daily data
+li_days=[]
+for i in range(0,len(chem_comp)):
+    df1=pd.DataFrame(chem_comp.iloc[i][0])
+    df1.reset_index(inplace=True, drop=True)
+    df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True) 
+    df1['date']=df1['datetime'].dt.date
+    df1d=df1.groupby(df1['date']).mean()
+    li_days.append(df1d.index)
+    #%%
+fig, axs=plt.subplots()
+for i in range(0,len(li_days)):
+    for j in range(0,len(min_date)):
+        for k in range(0,len(li_days[i])):
+            
+    #%%
+result_df=pd.DataFrame(index=min_date)
+for i, df in enumerate(li_days):
+    result_df[str(i)] = result_df.index.isin(df).astype(int)
+result_df.replace(0, np.nan, inplace=True)
+    #%%
+result_df.columns= ['HPB','MI', 'CAO-NIC', 'IPR', 'NOA', 'INO', 'CGR', 'PD', 'ATOLL', 'BO', 'CMN']
+x=range(0,11)    
+fig, axs=plt.subplots()
+axs.plot(x, result_df)
 
 
 
