@@ -16,13 +16,13 @@ from scipy.stats import linregress
 from scipy import stats
 #%% paths definition
 path_py_mac="/Users/martaviagonzalez/Documents/Documents - MacBook Pro de MVIA/GitHub/All_Treatment"
-path_py_wdws =""
+path_py_wdws ="C:/Users/maria/Documents/Marta Via/1. PhD/F. Scripts/Python Scripts"
 path_data_mac="/Users/martaviagonzalez/Documents/GitHub/EU_Overview/Data/All/"
 path_data_wdws="C:/Users/maria/Documents/GitHub/EU_Overview/Data/All/"
 path_folder_mac="/Users/martaviagonzalez/Documents/GitHub/EU_Overview/Data/"
 path_folder_wdws = "C:/Users/maria/Documents/GitHub/EU_Overview/Data/"
 #
-mac_or_wdws = 'mac' #Introduce OS here
+mac_or_wdws = 'wdws' #Introduce OS here
 #
 if mac_or_wdws=='mac':
     path_py = path_py_mac
@@ -46,12 +46,15 @@ trt.Hello()
 print(trt.x)
 #%% Import Composition files
 os.chdir(path_data)
-all_files=glob.glob(path_data_mac+'*Composition.txt')
-chem_comp =pd.DataFrame(data=[pd.read_csv(i, sep='\t') for i in all_files], columns=['Chemical_composition'])
+all_files=glob.glob(path_data+'*Composition.txt')
+chem_comp=pd.DataFrame()
+chem_comp['Chemical_composition']=[pd.read_csv(i, sep='\t') for i in all_files]
+# chem_comp =pd.DataFrame(data=[pd.read_csv(i, sep='\t') for i in all_files], columns=['Chemical_composition'])
 li_site_names = [j[-28:-25] for j in all_files]
 #%%Tweaks on the li_site_names
 # li_site_names[10]="BO" 
-li_site_names = ['HPB','MI', 'CAO-NIC', 'IPR', 'NOA', 'INO', 'CGR', 'PD', 'ATOLL', 'SMR','BO', 'CMN']
+# li_site_names = ['HPB', 'MI', 'CAO-NIC', 'IPR', 'NOA', 'INO', 'CGR', 'PD', 'ATOLL', 'SMR','BO', 'CMN'] #for mac ordering
+li_site_names = ['ATOLL','BO', 'CAO-NIC', 'CGR', 'CMN', 'HPB', 'INO', 'IPR', 'MI', 'NOA', 'PD', 'SMR'] #for wdws ordering
 chem_comp.index=li_site_names
 #%% We import metadatafiles
 os.chdir(path_folder)
@@ -60,7 +63,7 @@ metadata = pd.read_csv("Sites_metadata.txt", sep='\t')
 chem_comp=chem_comp.reindex(metadata['Acronym']) 
 chem_comp.drop(labels='SMR', inplace=True) #We remove hyttyala at the moment
 #%% Average plots compound - Boxplots
-os.chdir(path_folder_mac + "Preliminar Plots/Chemical Composition/")
+os.chdir(path_folder + "Preliminar Plots/Chemical Composition/")
 comp='Org'
 li_dfs=[]
 chem_compound,chem_compound_t, chem_dt=pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
@@ -79,14 +82,15 @@ chem_dt.columns=['All times']
 chem_compound_t['Hour'] = chem_dt['All times'].dt.hour
 chem_compound_t['Month'] = chem_dt['All times'].dt.month
 chem_compound_2=chem_compound.copy(deep = True)
-# chem_compound_2[['NOA', 'BO', 'CAO-NIC', 'PD', 'MI']].fillna(0, inplace=True)
-chem_compound_2[['NOA','BO', 'CAO-NIC', 'PD', 'MI']]=np.nan#.fillna({1:0}, inplace=True)
-# df[1].fillna(0, inplace=True)
+mask_urban=(metadata['Type']!='UB')
+non_urban=metadata['Acronym'].loc[mask_urban].to_list()
+chem_compound_2[non_urban]=np.nan
+#%%
 #Plotting boxplots
 fig, axs=plt.subplots(figsize=(10,10), nrows=2, ncols=2)
 chem_compound_t.boxplot(ax=axs[0,0],column='All sites', fontsize=12,boxprops=bp, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False)
 chem_compound.boxplot(ax=axs[0,1], boxprops=bp, fontsize=10, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False, rot=90)
-chem_compound_2.boxplot(ax=axs[0,1], boxprops=bp_grey, fontsize=10, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False, rot=90)
+# chem_compound_2.boxplot(ax=axs[0,1], boxprops=bp_grey, fontsize=10, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False, rot=90)
 chem_compound_t.boxplot(by='Hour', column='All sites', fontsize=10,  ax=axs[1,0], boxprops=bp, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False)
 chem_compound_t.boxplot(by='Month', column='All sites', fontsize=10,  ax=axs[1,1], boxprops=bp, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False)
 axs[1,0].set_title('')
@@ -98,13 +102,13 @@ li_dfs=[j.drop('datetime', inplace=True,axis=1) for j in li_dfs]
 
 #%% Filtering process
 nr_comp=['Org', 'SO4', 'NO3', 'NH4', 'Chl']
-DL=pd.Series([0.05, 0.05, 0.05, 0.05, 0.05], index=nr_comp)
+DL=pd.Series([0.148,0.024,0.012,0.284,0.011], index=nr_comp)
 max_conc=pd.Series([30,20,20,10,5], index=nr_comp)
 
 for j in range(0, len(li_dfs)):
     df=li_dfs[i]
     df=df.reindex(nr_comp, axis=1) 
-    DL_mask = (df['Org']>=-DL['Org']) & (df['SO4']>=-DL['SO4']) & (df['NO3']>=-DL['NO3']) & (df['NH4']>=-DL['NH4'])& (df['Chl']>=-DL['Chl'])
+    DL_mask = (df['Org']<=-DL['Org']) & (df['SO4']<=-DL['SO4']) & (df['NO3']<=-DL['NO3']) & (df['NH4']<=-DL['NH4'])& (df['Chl']<=-DL['Chl'])
     M_mask = (df['Org']<=-max_conc['Org']) & (df['SO4']<=-max_conc['SO4']) & (df['NO3']<=-max_conc['NO3']) & (df['NH4']<=-max_conc['NH4'])& (df['Chl']<=-max_conc['Chl'])
     df_f = df.loc[DL_mask]
     df_f = df_f.loc[M_mask]
