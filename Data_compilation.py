@@ -59,6 +59,7 @@ chem_comp.index=li_site_names
 #%% We import metadatafiles
 os.chdir(path_folder)
 metadata = pd.read_csv("Sites_metadata.txt", sep='\t')
+metadata=metadata.sort_values('Acronym')
 #%% We reorder the chem_comp df with the same order as in metadata.
 chem_comp=chem_comp.reindex(metadata['Acronym']) 
 chem_comp.drop(labels='SMR', inplace=True) #We remove hyttyala at the moment
@@ -142,23 +143,52 @@ dates_plot=dates_plot.replace(0, np.nan)
 for i in range(0,len(dates_plot.columns)):
     dates_plot[dates_plot.columns[i]]=dates_plot[dates_plot.columns[i]]*(i+1)
 fig, axs = plt.subplots(figsize=(9,6))
-dates_plot.plot(lw=0, marker='s', legend=False, ax=axs, color=colors, grid=True)
+for m, col, c in zip(li_marker, dates_plot.columns, li_color):
+    dates_plot[col].plot(marker=m, lw=0,legend=False, ax=axs, color=c, grid=True)
 axs.set_yticks(range(0,len(dates_plot.columns)+1))
 axs.set_yticklabels(['']+li_site_names[:-1])
 axs.set_xlabel('Time (years)', fontsize=14)
 axs.set_ylabel('Sites', fontsize=14)
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
+legend_elements = [Line2D([0], [0], color='royalblue', label='Urban background', ),
+                   Line2D([0], [0], color='green', label='Regional background'), 
+                   Line2D([0], [0], color='darkorange', label='Suburban'), 
+                   Line2D([0], [0],  color='sienna', label='Mountain'), 
+                   Line2D([0], [0],  color='mediumpurple', label='Coastal'),
+                   Line2D([0], [0], color='sienna', label='Mountain'), 
+                   Line2D([0], [0], marker='D', color='grey', label='AMS'),
+                   Line2D([0], [0], marker='s', color='grey', label='Q-ACSM'),
+                   Line2D([0], [0], marker='o', color='grey', label='ToF-ACSM')]
+axs.legend(handles=legend_elements, loc = (1.02,0.5))#'upper right')
+#Still to do: plot by type of instrument  or type of site. 
 fig.savefig('Site_availability.png')
 
-#Still to do: plot by type of instrument  or type of site. 
-
 #%%
+for m, col in zip('xosd', df):
+    df[col].plot(marker=m)
+plt.legend()
 
-
-
-
-
-
-
+li_marker=[]
+li_color=[]
+for i in range(0,len(metadata[:-1])):
+    if metadata['Type.1'].iloc[i]=='AMS':
+        li_marker.append('D')
+    if metadata['Type.1'].iloc[i]=='Q':
+        li_marker.append('s')
+    if metadata['Type.1'].iloc[i]=='ToF':
+        li_marker.append('o')
+    #
+    if metadata['Type'].iloc[i]=='UB':
+        li_color.append('royalblue')
+    if metadata['Type'].iloc[i]=='RB':
+        li_color.append('green')
+    if metadata['Type'].iloc[i]=='C':
+        li_color.append('mediumpurple')
+    if metadata['Type'].iloc[i]=='SU':
+        li_color.append('darkorange')
+    if metadata['Type'].iloc[i]=='M':
+        li_color.append('sienna')
 
 
 
