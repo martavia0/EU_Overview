@@ -85,8 +85,7 @@ chem_compound_2=chem_compound.copy(deep = True)
 mask_urban=(metadata['Type']!='UB')
 non_urban=metadata['Acronym'].loc[mask_urban].to_list()
 chem_compound_2[non_urban]=np.nan
-#%%
-#Plotting boxplots
+#%%Plotting boxplots
 fig, axs=plt.subplots(figsize=(10,10), nrows=2, ncols=2)
 chem_compound_t.boxplot(ax=axs[0,0],column='All sites', fontsize=12,boxprops=bp, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False)
 chem_compound.boxplot(ax=axs[0,1], boxprops=bp, fontsize=10, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False, rot=90)
@@ -98,7 +97,7 @@ axs[1,1].set_title('')
 fig.suptitle(comp, fontsize=16)
 axs[0,1].legend(['Urban site', 'Non-Urban site'], loc='upper right', labelcolor=['k', 'grey'])
 plt.savefig('Boxplots_'+comp+'.png')
-li_dfs=[j.drop('datetime', inplace=True,axis=1) for j in li_dfs]
+li_dfs=[j.drop('datetime', inplace=True, axis=1) for j in li_dfs]
 
 #%% Filtering process
 nr_comp=['Org', 'SO4', 'NO3', 'NH4', 'Chl']
@@ -112,10 +111,9 @@ for j in range(0, len(li_dfs)):
     M_mask = (df['Org']<=-max_conc['Org']) & (df['SO4']<=-max_conc['SO4']) & (df['NO3']<=-max_conc['NO3']) & (df['NH4']<=-max_conc['NH4'])& (df['Chl']<=-max_conc['Chl'])
     df_f = df.loc[DL_mask]
     df_f = df_f.loc[M_mask]
-    df_f.plot(subplots=True)
+    df_f.plot(subplots=True) 
 #%% Maybe now I should put them in teh daily pattern
-min_date = pd.date_range(start='01/01/2010', end = '31/12/2023', freq='D')
-# daily data
+min_date = pd.date_range(start='01/01/2010', end = '31/12/2023', freq='D').strftime('%d/%m/%Y') #The complete time series
 li_days=[]
 for i in range(0,len(chem_comp)):
     df1=pd.DataFrame(chem_comp.iloc[i][0])
@@ -123,30 +121,37 @@ for i in range(0,len(chem_comp)):
     df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True) 
     df1['date']=df1['datetime'].dt.date
     df1d=df1.groupby(df1['date']).mean()
-    li_days.append(df1d.index)
-    #%%
-fig, axs=plt.subplots()
-for i in range(0,len(li_days)):
-    for j in range(0,len(min_date)):
-        for k in range(0,len(li_days[i])):
-            
-    #%%
-result_df=pd.DataFrame(index=min_date)
-for i, df in enumerate(li_days):
-    result_df[str(i)] = result_df.index.isin(df).astype(int)
-result_df.replace(0, np.nan, inplace=True)
-    #%%
-result_df.columns= ['HPB','MI', 'CAO-NIC', 'IPR', 'NOA', 'INO', 'CGR', 'PD', 'ATOLL', 'BO', 'CMN']
-x=range(0,11)    
-fig, axs=plt.subplots()
-axs.plot(x, result_df)
+    df1d['datetime']=pd.to_datetime(df1d.index, dayfirst=True)
+    df1d.columns=['Chl_'+li_site_names[i],'NH4_'+li_site_names[i], 'NO3_'+li_site_names[i],'Org_'+li_site_names[i], 'SO4_'+li_site_names[i], 'datetime_'+li_site_names[i] ]
+    li_days.append(df1d) #List of the datetimes
+    
 
+#%% Merging DFS
+df=pd.DataFrame(pd.to_datetime(min_date, dayfirst=True), columns=['date'])
+dates = pd.merge(df,li_days[0], how='outer',left_on='date', right_index=True, sort=True)
+for i in range (1,len(li_days)):
+    dates = pd.merge(dates,li_days[i], how='outer',left_on='date', right_index=True, sort=True)
+dates=dates.drop(dates.index[-1])
+dates.index=dates['date']
+dates.plot(legend=False)
+#%% PLot
+dates_plot=dates.loc[:, dates.columns.str.startswith('datetime')]
+colors=['grey', ]
+dates_plot=dates_plot.notnull().astype('int')
+dates_plot=dates_plot.replace(0, np.nan)
+for i in range(0,len(dates_plot.columns)):
+    dates_plot[dates_plot.columns[i]]=dates_plot[dates_plot.columns[i]]*(i+1)
+fig, axs = plt.subplots(figsize=(9,6))
+dates_plot.plot(lw=0, marker='s', legend=False, ax=axs, color=colors, grid=True)
+axs.set_yticks(range(0,len(dates_plot.columns)+1))
+axs.set_yticklabels(['']+li_site_names[:-1])
+axs.set_xlabel('Time (years)', fontsize=14)
+axs.set_ylabel('Sites', fontsize=14)
+fig.savefig('Site_availability.png')
 
+#Still to do: plot by type of instrument  or type of site. 
 
-
-
-
-
+#%%
 
 
 
