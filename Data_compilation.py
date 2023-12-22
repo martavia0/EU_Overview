@@ -17,12 +17,12 @@ from scipy import stats
 #%% paths definition
 path_py_mac="/Users/martaviagonzalez/Documents/Documents - MacBook Pro de MVIA/GitHub/All_Treatment"
 path_py_wdws ="C:/Users/maria/Documents/Marta Via/1. PhD/F. Scripts/Python Scripts"
-path_data_mac="/Users/martaviagonzalez/Documents/GitHub/EU_Overview/Data/All/"
+path_data_mac="/Users/martaviagonzalez/Documents/Documents - MacBook Pro de MVIA/IDAEA-CSIC/Overview/All/"
 path_data_wdws="C:/Users/maria/Documents/Marta Via/1. PhD/A. Data/Overview/All/"
 path_folder_mac="/Users/martaviagonzalez/Documents/GitHub/EU_Overview/Data/"
 path_folder_wdws = "C:/Users/maria/Documents/GitHub/EU_Overview/Data/"
 #
-mac_or_wdws = 'wdws' #Introduce OS here
+mac_or_wdws = 'mac' #Introduce OS here
 #
 if mac_or_wdws=='mac':
     path_py = path_py_mac
@@ -48,14 +48,18 @@ print(trt.x)
 os.chdir(path_data)
 all_files=glob.glob(path_data+'*Composition.txt')
 chem_comp=pd.DataFrame()
-chem_comp['Chemical_composition']=[pd.read_csv(i, sep='\t') for i in all_files]
-li_site_names = [j[-28:-25] for j in all_files]
+chem_comp['Chemical_composition']=[pd.read_csv(i, sep='\t', na_values='null', keep_default_na=True) for i in all_files]
+li_site_names = [j[-29:-25] for j in all_files]
+chem_comp.index = li_site_names
 #%% We import metadatafiles
 os.chdir(path_folder)
 metadata = pd.read_csv("Sites_metadata.txt", sep='\t')
 metadata=metadata.sort_values('Acronym')
 li_sites_names = metadata['Acronym']
-chem_comp.index = metadata['Acronym']
+#chem_comp.index = metadata['Acronym']
+#%%
+df1 = pd.DataFrame(chem_comp.iloc[1][0])
+
 #%%
 """ NR-PM1 COMPOUNDS! """
 #%% Average plots compound - Boxplots
@@ -64,19 +68,19 @@ comp='Org'
 li_dfs=[]
 chem_compound,chem_compound_t, chem_dt=pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 for i in range(0,len(chem_comp)):
-    print(metadata['Acronym'].iloc[i])
+    print(i, li_site_names[i])
     df1 = pd.DataFrame(chem_comp.iloc[i][0])
     df1.reset_index(inplace=True, drop=True)
     df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True)
     chem_compound=pd.concat([chem_compound, df1[comp]], axis=1)
     chem_dt = pd.concat([chem_dt, pd.to_datetime(df1['Time (Local)'], dayfirst=True)], axis=0)
-    chem_compound_t=pd.concat([chem_compound_t, df1[comp]], axis=0)
+    chem_compound_t=pd.concat([chem_compound_t, pd.to_numeric(df1[comp])], axis=0)
     df1.index=df1.datetime
     li_dfs.append(df1)
 chem_compound.columns=chem_comp.index
 chem_compound_t.columns=['All sites']#­metadata['Acronym']
 chem_dt.columns=['All times']
-#%%
+1#%%
 chem_dt['All_times'] = pd.to_datetime(chem_dt['All times'], dayfirst=True, utc=True)
 chem_compound_t['Hour'] = chem_dt['All_times'].dt.hour
 chem_compound_t['Month'] = chem_dt['All_times'].dt.month
@@ -86,7 +90,7 @@ non_urban=metadata['Acronym'].loc[mask_urban].to_list()
 chem_compound_2[non_urban]=np.nan
 #%%Plotting boxplots
 fig, axs=plt.subplots(figsize=(10,10),nrows=2, ncols=2)
-chem_compound_t.boxplot(column=['All sites'],ax=axs[0,0], fontsize=12,boxprops=bp, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False)
+chem_compound_t.boxplot(column = 'All sites', ax=axs[0,0], fontsize=12,boxprops=bp, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False)
 chem_compound.boxplot(ax=axs[0,1], boxprops=bp, fontsize=10, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False, rot=90)
 # chem_compound_2.boxplot(ax=axs[0,1], boxprops=bp_grey, fontsize=10, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False, rot=90)
 chem_compound_t.boxplot(by='Hour', column='All sites', fontsize=10,  ax=axs[1,0], boxprops=bp, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False)
@@ -97,6 +101,10 @@ fig.suptitle(comp, fontsize=16)
 axs[0,1].legend(['Urban site', 'Non-Urban site'], loc='upper right', labelcolor=['k', 'grey'])
 plt.savefig('Boxplots_'+comp+'.png')
 li_dfs=[j.drop('datetime', inplace=True, axis=1) for j in li_dfs]
+#%%
+a=pd.DataFrame()
+a['All']=chem_compound_t['All sites'].astype(float)
+a.boxplot(column='All',  fontsize=12,boxprops=bp, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False)
 
 #%% Filtering process
 nr_comp=['Org', 'SO4', 'NO3', 'NH4', 'Chl']
