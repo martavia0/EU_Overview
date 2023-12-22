@@ -18,7 +18,7 @@ from scipy import stats
 path_py_mac="/Users/martaviagonzalez/Documents/Documents - MacBook Pro de MVIA/GitHub/All_Treatment"
 path_py_wdws ="C:/Users/maria/Documents/Marta Via/1. PhD/F. Scripts/Python Scripts"
 path_data_mac="/Users/martaviagonzalez/Documents/GitHub/EU_Overview/Data/All/"
-path_data_wdws="C:/Users/maria/Documents/GitHub/EU_Overview/Data/All/"
+path_data_wdws="C:/Users/maria/Documents/Marta Via/1. PhD/A. Data/Overview/All/"
 path_folder_mac="/Users/martaviagonzalez/Documents/GitHub/EU_Overview/Data/"
 path_folder_wdws = "C:/Users/maria/Documents/GitHub/EU_Overview/Data/"
 #
@@ -49,46 +49,44 @@ os.chdir(path_data)
 all_files=glob.glob(path_data+'*Composition.txt')
 chem_comp=pd.DataFrame()
 chem_comp['Chemical_composition']=[pd.read_csv(i, sep='\t') for i in all_files]
-# chem_comp =pd.DataFrame(data=[pd.read_csv(i, sep='\t') for i in all_files], columns=['Chemical_composition'])
 li_site_names = [j[-28:-25] for j in all_files]
-#%%Tweaks on the li_site_names
-# li_site_names[10]="BO" 
-# li_site_names = ['HPB', 'MI', 'CAO-NIC', 'IPR', 'NOA', 'INO', 'CGR', 'PD', 'ATOLL', 'SMR','BO', 'CMN'] #for mac ordering
-li_site_names = ['ATOLL','BO', 'CAO-NIC', 'CGR', 'CMN', 'HPB', 'INO', 'IPR', 'MI', 'NOA', 'PD', 'SMR'] #for wdws ordering
-chem_comp.index=li_site_names
 #%% We import metadatafiles
 os.chdir(path_folder)
 metadata = pd.read_csv("Sites_metadata.txt", sep='\t')
 metadata=metadata.sort_values('Acronym')
-#%% We reorder the chem_comp df with the same order as in metadata.
-chem_comp=chem_comp.reindex(metadata['Acronym']) 
-chem_comp.drop(labels='SMR', inplace=True) #We remove hyttyala at the moment
+li_sites_names = metadata['Acronym']
+chem_comp.index = metadata['Acronym']
+#%%
+""" NR-PM1 COMPOUNDS! """
 #%% Average plots compound - Boxplots
 os.chdir(path_folder + "Preliminar Plots/Chemical Composition/")
 comp='Org'
 li_dfs=[]
 chem_compound,chem_compound_t, chem_dt=pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 for i in range(0,len(chem_comp)):
+    print(metadata['Acronym'].iloc[i])
     df1 = pd.DataFrame(chem_comp.iloc[i][0])
     df1.reset_index(inplace=True, drop=True)
     df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True)
     chem_compound=pd.concat([chem_compound, df1[comp]], axis=1)
     chem_dt = pd.concat([chem_dt, pd.to_datetime(df1['Time (Local)'], dayfirst=True)], axis=0)
-    chem_compound_t=pd.concat([chem_compound_t, df1[comp]], axis=0,)
+    chem_compound_t=pd.concat([chem_compound_t, df1[comp]], axis=0)
     df1.index=df1.datetime
     li_dfs.append(df1)
 chem_compound.columns=chem_comp.index
-chem_compound_t.columns=['All sites']
+chem_compound_t.columns=['All sites']#­metadata['Acronym']
 chem_dt.columns=['All times']
-chem_compound_t['Hour'] = chem_dt['All times'].dt.hour
-chem_compound_t['Month'] = chem_dt['All times'].dt.month
+#%%
+chem_dt['All_times'] = pd.to_datetime(chem_dt['All times'], dayfirst=True, utc=True)
+chem_compound_t['Hour'] = chem_dt['All_times'].dt.hour
+chem_compound_t['Month'] = chem_dt['All_times'].dt.month
 chem_compound_2=chem_compound.copy(deep = True)
 mask_urban=(metadata['Type']!='UB')
 non_urban=metadata['Acronym'].loc[mask_urban].to_list()
 chem_compound_2[non_urban]=np.nan
 #%%Plotting boxplots
-fig, axs=plt.subplots(figsize=(10,10), nrows=2, ncols=2)
-chem_compound_t.boxplot(ax=axs[0,0],column='All sites', fontsize=12,boxprops=bp, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False)
+fig, axs=plt.subplots(figsize=(10,10),nrows=2, ncols=2)
+chem_compound_t.boxplot(column=['All sites'],ax=axs[0,0], fontsize=12,boxprops=bp, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False)
 chem_compound.boxplot(ax=axs[0,1], boxprops=bp, fontsize=10, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False, rot=90)
 # chem_compound_2.boxplot(ax=axs[0,1], boxprops=bp_grey, fontsize=10, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False, rot=90)
 chem_compound_t.boxplot(by='Hour', column='All sites', fontsize=10,  ax=axs[1,0], boxprops=bp, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False)
