@@ -19,10 +19,11 @@ path_py_mac="/Users/martaviagonzalez/Documents/Documents - MacBook Pro de MVIA/G
 path_py_wdws ="C:/Users/maria/Documents/Marta Via/1. PhD/F. Scripts/Python Scripts"
 path_data_mac="/Users/martaviagonzalez/Documents/Documents - MacBook Pro de MVIA/IDAEA-CSIC/Overview/All/"
 path_data_wdws="C:/Users/maria/Documents/Marta Via/1. PhD/A. Data/Overview/All/"
+path_individual_wdws="C:/Users/maria/Documents/Marta Via/1. PhD/A. Data/Overview/Individual_plots/"
 path_folder_mac="/Users/martaviagonzalez/Documents/GitHub/EU_Overview/Data/"
 path_folder_wdws = "C:/Users/maria/Documents/GitHub/EU_Overview/Data/"
 #
-mac_or_wdws = 'mac' #Introduce OS here
+mac_or_wdws = 'wdws' #Introduce OS here
 #
 if mac_or_wdws=='mac':
     path_py = path_py_mac
@@ -47,22 +48,42 @@ print(trt.x)
 #%% Import Composition files
 os.chdir(path_data)
 all_files=glob.glob(path_data+'*Composition.txt')
+li_site_names = [j[-29:-25] for j in all_files]
 chem_comp=pd.DataFrame()
 chem_comp['Chemical_composition']=[pd.read_csv(i, sep='\t', na_values='null', keep_default_na=True) for i in all_files]
-li_site_names = [j[-29:-25] for j in all_files]
-chem_comp.index = li_site_names
+li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO', 'CGR', 'CMN', 'CRP', 'DEM', 'DUB', 'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAG','MAQS', 'MAR', 'MEL', 'MH', 'MI', 'MSY', 'NOA', 'PD', 'PRG','PUY', 'SIRTA',  'SPC', 'TAR', 'VDA', 'VIR', 'ZEP', 'ZUR'] 
+chem_comp.index = li_sites_names
 #%% We import metadatafiles
 os.chdir(path_folder)
 metadata = pd.read_csv("Sites_metadata.txt", sep='\t')
 metadata=metadata.sort_values('Acronym')
 li_sites_names = metadata['Acronym']
 #chem_comp.index = metadata['Acronym']
-#%%
-df1 = pd.DataFrame(chem_comp.iloc[1][0])
-
+#%% Colors
+cl_nrpm1=['forestgreen', 'red', 'blue', 'gold', 'fuchsia']
 #%%
 """ NR-PM1 COMPOUNDS! """
-#%% Average plots compound - Boxplots
+
+#%% INDIVIDUAL PLOTS
+nr_dfs=[]
+chem_comp['Chemical_composition']=[pd.read_csv(i, sep='\t', na_values='np.nan', keep_default_na=True) for i in all_files]
+os.chdir(path_individual_wdws)
+for i in range(0,len(chem_comp)):
+    print(i,li_sites_names[i])
+    dfi=chem_comp.iloc[i][0]
+    dfi=dfi.replace('', np.nan)
+    dfi['datetime']=pd.to_datetime(dfi['Time (UTC)'], dayfirst=True)
+    del dfi['Time (UTC)']
+    del dfi['Time (Local)']
+    dfi.index = dfi['datetime']
+    del dfi['datetime']
+    dfi=dfi[['Org', 'SO4', 'NO3', 'NH4', 'Chl']]
+    dfi.columns=['OA', 'Sulphate', 'Nitrate', 'Ammonium', 'Chloride']
+    fig, axs=plt.subplots(figsize=(10,10))
+    dfi.plot(subplots=True, color=cl_nrpm1, ax=axs, title =li_sites_names[i])
+    nr_dfs.append(dfi)
+    plt.savefig(li_sites_names[i]+'_NRPM1.png')
+#%% Average plots compound - Boxplot
 os.chdir(path_folder + "Preliminar Plots/Chemical Composition/")
 comp='Org'
 li_dfs=[]
@@ -80,15 +101,16 @@ for i in range(0,len(chem_comp)):
 chem_compound.columns=chem_comp.index
 chem_compound_t.columns=['All sites']#­metadata['Acronym']
 chem_dt.columns=['All times']
-1#%%
+#%%
 chem_dt['All_times'] = pd.to_datetime(chem_dt['All times'], dayfirst=True, utc=True)
 chem_compound_t['Hour'] = chem_dt['All_times'].dt.hour
 chem_compound_t['Month'] = chem_dt['All_times'].dt.month
 chem_compound_2=chem_compound.copy(deep = True)
-mask_urban=(metadata['Type']!='UB')
-non_urban=metadata['Acronym'].loc[mask_urban].to_list()
+mask_nonurban=(metadata['Type']!='UB')
+non_urban=metadata['Acronym'].loc[mask_nonurban].to_list()
 chem_compound_2[non_urban]=np.nan
 #%%Plotting boxplots
+os.chdir(path_folder + "Preliminar Plots/Chemical Composition/")
 fig, axs=plt.subplots(figsize=(10,10),nrows=2, ncols=2)
 chem_compound_t.boxplot(column = 'All sites', ax=axs[0,0], fontsize=12,boxprops=bp, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False)
 chem_compound.boxplot(ax=axs[0,1], boxprops=bp, fontsize=10, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False, rot=90)
@@ -100,47 +122,35 @@ axs[1,1].set_title('')
 fig.suptitle(comp, fontsize=16)
 axs[0,1].legend(['Urban site', 'Non-Urban site'], loc='upper right', labelcolor=['k', 'grey'])
 plt.savefig('Boxplots_'+comp+'.png')
-li_dfs=[j.drop('datetime', inplace=True, axis=1) for j in li_dfs]
-#%%
-a=pd.DataFrame()
-a['All']=chem_compound_t['All sites'].astype(float)
-a.boxplot(column='All',  fontsize=12,boxprops=bp, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False)
+# li_dfs=[j.drop('datetime', inplace=True, axis=1) for j in li_dfs]
 
-#%% Filtering process
-nr_comp=['Org', 'SO4', 'NO3', 'NH4', 'Chl']
-DL=pd.Series([0.148,0.024,0.012,0.284,0.011], index=nr_comp)
-max_conc=pd.Series([30,20,20,10,5], index=nr_comp)
 
-for j in range(0, len(li_dfs)):
-    df=li_dfs[i]
-    df=df.reindex(nr_comp, axis=1) 
-    DL_mask = (df['Org']<=-DL['Org']) & (df['SO4']<=-DL['SO4']) & (df['NO3']<=-DL['NO3']) & (df['NH4']<=-DL['NH4'])& (df['Chl']<=-DL['Chl'])
-    M_mask = (df['Org']<=-max_conc['Org']) & (df['SO4']<=-max_conc['SO4']) & (df['NO3']<=-max_conc['NO3']) & (df['NH4']<=-max_conc['NH4'])& (df['Chl']<=-max_conc['Chl'])
-    df_f = df.loc[DL_mask]
-    df_f = df_f.loc[M_mask]
-    df_f.plot(subplots=True) 
 #%% Maybe now I should put them in teh daily pattern
 min_date = pd.date_range(start='01/01/2010', end = '31/12/2023', freq='D').strftime('%d/%m/%Y') #The complete time series
 li_days=[]
 for i in range(0,len(chem_comp)):
+    print(i, li_sites_names[i])
     df1=pd.DataFrame(chem_comp.iloc[i][0])
     df1.reset_index(inplace=True, drop=True)
     df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True) 
     df1['date']=df1['datetime'].dt.date
     df1d=df1.groupby(df1['date']).mean()
+    df1d=df1d.drop(columns=['Time (Local)', 'MSA', 'Seasalt'], axis=1, errors='ignore')
     df1d['datetime']=pd.to_datetime(df1d.index, dayfirst=True)
-    df1d.columns=['Chl_'+li_site_names[i],'NH4_'+li_site_names[i], 'NO3_'+li_site_names[i],'Org_'+li_site_names[i], 'SO4_'+li_site_names[i], 'datetime_'+li_site_names[i] ]
+    df1d.columns=['Chl_'+li_sites_names[i],'NH4_'+li_sites_names[i], 'NO3_'+li_sites_names[i],'Org_'+li_sites_names[i], 'SO4_'+li_sites_names[i], 'datetime_'+li_sites_names[i] ]
     li_days.append(df1d) #List of the datetimes
     
-
 #%% Merging DFS
 df=pd.DataFrame(pd.to_datetime(min_date, dayfirst=True), columns=['date'])
-dates = pd.merge(df,li_days[0], how='outer',left_on='date', right_index=True, sort=True)
+li_days[0]['datet'] = pd.to_datetime(li_days[0]['date'])
+dates = pd.merge(df,li_days[0], how='outer',left_on='date', right_on='datet', sort=True)
 for i in range (1,len(li_days)):
-    dates = pd.merge(dates,li_days[i], how='outer',left_on='date', right_index=True, sort=True)
+    li_days[i]['datet']= pd.to_datetime(li_days[i].index)
+    dates = pd.merge(dates,li_days[i], how='outer',left_on='date_x', right_on='datet', sort=True)
 dates=dates.drop(dates.index[-1])
-dates.index=dates['date']
+dates.index=dates['date_x']
 dates.plot(legend=False)
+
 #%% PLot
 dates_plot=dates.loc[:, dates.columns.str.startswith('datetime')]
 colors=['grey', ]
@@ -148,15 +158,16 @@ dates_plot=dates_plot.notnull().astype('int')
 dates_plot=dates_plot.replace(0, np.nan)
 for i in range(0,len(dates_plot.columns)):
     dates_plot[dates_plot.columns[i]]=dates_plot[dates_plot.columns[i]]*(i+1)
-fig, axs = plt.subplots(figsize=(9,6))
+fig, axs = plt.subplots(figsize=(9,8))
 for m, col, c in zip(li_marker, dates_plot.columns, li_color):
     dates_plot[col].plot(marker=m, lw=0,legend=False, ax=axs, color=c, grid=True)
 axs.set_yticks(range(0,len(dates_plot.columns)+1))
-axs.set_yticklabels(['']+li_site_names[:-1])
+axs.set_yticklabels(['']+li_sites_names)
 axs.set_xlabel('Time (years)', fontsize=14)
 axs.set_ylabel('Sites', fontsize=14)
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
+
 legend_elements = [Line2D([0], [0], color='royalblue', label='Urban background', ),
                    Line2D([0], [0], color='green', label='Regional background'), 
                    Line2D([0], [0], color='darkorange', label='Suburban'), 
@@ -171,6 +182,9 @@ axs.legend(handles=legend_elements, loc = (1.02,0.5))#'upper right')
 fig.savefig('Site_availability.png')
 
 #%%
+
+
+
 for m, col in zip('xosd', df):
     df[col].plot(marker=m)
 plt.legend()
@@ -195,6 +209,4 @@ for i in range(0,len(metadata[:-1])):
         li_color.append('darkorange')
     if metadata['Type'].iloc[i]=='M':
         li_color.append('sienna')
-
-
 
