@@ -51,20 +51,19 @@ all_files=glob.glob(path_data+'*Composition.txt')
 li_site_names = [j[-29:-25] for j in all_files]
 chem_comp=pd.DataFrame()
 chem_comp['Chemical_composition']=[pd.read_csv(i, sep='\t', na_values='null', keep_default_na=True) for i in all_files]
-li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO', 'CGR', 'CMN', 'CRP', 'DEM', 'DUB', 'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAG','MAQS', 'MAR', 'MEL', 'MH', 'MI', 'MSY', 'NOA', 'PD', 'PRG','PUY', 'SIRTA',  'SPC', 'TAR', 'VDA', 'VIR', 'ZEP', 'ZUR'] 
+li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRP', 'DEM', 'DUB', 'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAG','MAQS', 'MAR-LCP', 'MEL', 'MH', 'MI', 'MSY', 'NOA', 'PD', 'PRG-SUCH','PUY', 'SIRTA',  'SPC', 'TAR','VIR', 'ZEP', 'ZUR'] 
 chem_comp.index = li_sites_names
 #%% We import metadatafiles
 os.chdir(path_folder)
 metadata = pd.read_csv("Sites_metadata.txt", sep='\t')
 metadata=metadata.sort_values('Acronym')
-li_sites_names = metadata['Acronym']
 #chem_comp.index = metadata['Acronym']
 #%% Colors
 cl_nrpm1=['forestgreen', 'red', 'blue', 'gold', 'fuchsia']
 #%%
 """ NR-PM1 COMPOUNDS! """
 
-#%% INDIVIDUAL PLOTS
+#%% INDIVIDUAL PLOTS I
 nr_dfs=[]
 chem_comp['Chemical_composition']=[pd.read_csv(i, sep='\t', na_values='np.nan', keep_default_na=True) for i in all_files]
 os.chdir(path_individual_wdws)
@@ -73,8 +72,8 @@ for i in range(0,len(chem_comp)):
     dfi=chem_comp.iloc[i][0]
     dfi=dfi.replace('', np.nan)
     dfi['datetime']=pd.to_datetime(dfi['Time (UTC)'], dayfirst=True)
-    del dfi['Time (UTC)']
-    del dfi['Time (Local)']
+    dfi.drop(dfi['Time (UTC)'], errors='ignore')
+    dfi.drop(dfi['Time (Local)'], errors='ignore')
     dfi.index = dfi['datetime']
     del dfi['datetime']
     dfi=dfi[['Org', 'SO4', 'NO3', 'NH4', 'Chl']]
@@ -83,6 +82,24 @@ for i in range(0,len(chem_comp)):
     dfi.plot(subplots=True, color=cl_nrpm1, ax=axs, title =li_sites_names[i])
     nr_dfs.append(dfi)
     plt.savefig(li_sites_names[i]+'_NRPM1.png')
+#%% INDIVIDUAL PLOTS II
+nr_pm1=['OA', 'Sulphate', 'Nitrate', 'Ammonium', 'Chloride']
+for i in range(0,len(nr_dfs)):
+    dfi = nr_dfs[i].copy(deep=True)
+    dfi['datetime']=pd.to_datetime(dfi.index, dayfirst=True)
+    dfi_mean=dfi.mean()
+    if dfi_mean.lt(0.0).any() :
+        dfi_mean = abs(dfi_mean)
+    dfi['Month']= dfi['datetime'].dt.month
+    dfi['Year']=dfi['datetime'].dt.year
+    dfi['Hour']=dfi['datetime'].dt.hour
+    fig, axs=plt.subplots(ncols = 4, figsize=(12,3))
+    dfi_mean.plot.pie(ax=axs[0], legend=False, autopct='%1.0f%%', colors=cl_nrpm1, title='Avg. conc.', startangle=90, labels=None, counterclock=True)
+    dfi.groupby('Year').mean().plot( y=nr_pm1, ax=axs[1], legend=False, color=cl_nrpm1, marker = 'o')
+    dfi.groupby('Month').mean().plot(marker='o', y=nr_pm1,  ax=axs[2], legend=False, color=cl_nrpm1)
+    dfi.groupby('Hour').mean().plot( y=nr_pm1, ax=axs[3], legend=False, color=cl_nrpm1)
+    plt.suptitle(li_sites_names[i])
+    plt.savefig(li_sites_names[i]+'_NRPM1_means.png')
 #%% Average plots compound - Boxplot
 os.chdir(path_folder + "Preliminar Plots/Chemical Composition/")
 comp='Org'
@@ -129,7 +146,7 @@ plt.savefig('Boxplots_'+comp+'.png')
 min_date = pd.date_range(start='01/01/2010', end = '31/12/2023', freq='D').strftime('%d/%m/%Y') #The complete time series
 li_days=[]
 for i in range(0,len(chem_comp)):
-    print(i, li_sites_names[i])
+    print(i, li_sites_names[i], li_site_names[i])
     df1=pd.DataFrame(chem_comp.iloc[i][0])
     df1.reset_index(inplace=True, drop=True)
     df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True) 
@@ -142,18 +159,42 @@ for i in range(0,len(chem_comp)):
     
 #%% Merging DFS
 df=pd.DataFrame(pd.to_datetime(min_date, dayfirst=True), columns=['date'])
-li_days[0]['datet'] = pd.to_datetime(li_days[0]['date'])
+li_days[0]['datet'] = pd.to_datetime(li_days[0].index)
 dates = pd.merge(df,li_days[0], how='outer',left_on='date', right_on='datet', sort=True)
 for i in range (1,len(li_days)):
     li_days[i]['datet']= pd.to_datetime(li_days[i].index)
-    dates = pd.merge(dates,li_days[i], how='outer',left_on='date_x', right_on='datet', sort=True)
+    dates = pd.merge(dates,li_days[i], how='outer',left_on='date', right_on='datet', sort=True)
 dates=dates.drop(dates.index[-1])
-dates.index=dates['date_x']
+dates.index=dates['date']
 dates.plot(legend=False)
 
-#%% PLot
+#%% PLot availability
 dates_plot=dates.loc[:, dates.columns.str.startswith('datetime')]
 colors=['grey', ]
+for m, col in zip('xosd', df):
+    df[col].plot(marker=m)
+plt.legend()
+
+li_marker=[]
+li_color=[]
+for i in range(0,len(metadata[:-1])):
+    if metadata['Type.1'].iloc[i]=='AMS':
+        li_marker.append('D')
+    if metadata['Type.1'].iloc[i]=='Q':
+        li_marker.append('s')
+    if metadata['Type.1'].iloc[i]=='ToF':
+        li_marker.append('o')
+    #
+    if metadata['Type'].iloc[i]=='UB':
+        li_color.append('royalblue')
+    if metadata['Type'].iloc[i]=='RB':
+        li_color.append('green')
+    if metadata['Type'].iloc[i]=='C':
+        li_color.append('mediumpurple')
+    if metadata['Type'].iloc[i]=='SU':
+        li_color.append('darkorange')
+    if metadata['Type'].iloc[i]=='M':
+        li_color.append('sienna')
 dates_plot=dates_plot.notnull().astype('int')
 dates_plot=dates_plot.replace(0, np.nan)
 for i in range(0,len(dates_plot.columns)):
@@ -181,32 +222,99 @@ axs.legend(handles=legend_elements, loc = (1.02,0.5))#'upper right')
 #Still to do: plot by type of instrument  or type of site. 
 fig.savefig('Site_availability.png')
 
+
 #%%
+li_sites_types = []
+for i in range(0,len(li_sites_names)):
+    a=metadata.loc[metadata['Acronym']==li_sites_names[i]]['Type'].to_list()
+    li_sites_types.append(a[0])
+sites=pd.DataFrame({'Name': li_sites_names, 'Type': li_sites_types})
+#%%
+comp = 'Org'
+col_list=[]
+types =['UB', 'RB', 'SU', 'C', 'M', 'A', 'TR']
+ub, rb, su, c, m, a, tr= pd.DataFrame(), pd.DataFrame(),pd.DataFrame(),pd.DataFrame(),pd.DataFrame(),pd.DataFrame(), pd.DataFrame()
+compound_dates=dates.loc[:, dates.columns.str.startswith(comp)]
+for i in range(0,len(compound_dates.columns)):
+    col_list = [col for col in compound_dates.columns if col.endswith(li_sites_names[i])]
+    if li_sites_types[i]=='UB':
+        ub=pd.concat([ub, compound_dates[col_list]], axis=1)
+    if li_sites_types[i]=='RB':
+        rb=pd.concat([rb, compound_dates[col_list]], axis=1)    
+    if li_sites_types[i]=='SU':
+        su=pd.concat([su, compound_dates[col_list]], axis=1) 
+    if li_sites_types[i]=='C':
+        c=pd.concat([c, compound_dates[col_list]], axis=1) 
+    if li_sites_types[i]=='M':
+        m=pd.concat([m, compound_dates[col_list]], axis=1)
+    if li_sites_types[i]=='A':
+        a=pd.concat([a, compound_dates[col_list]], axis=1)
+    if li_sites_types[i]=='TR':
+        tr=pd.concat([tr, compound_dates[col_list]], axis=1)
+fig, axs=plt.subplots(nrows=7, sharex=True, figsize=(10,10))
+ub.plot(ax=axs[0], legend=False)
+ub.median(axis=1).plot(ax=axs[0], legend=False, c='k', lw=1.5)
+rb.plot(ax=axs[1], legend=False)
+rb.median(axis=1).plot(ax=axs[1], legend=False, c='k', lw=1.5)
+su.plot(ax=axs[2], legend=False)
+su.median(axis=1).plot(ax=axs[2], legend=False, c='k', lw=1.5)
+c.plot(ax=axs[3], legend=False)
+c.median(axis=1).plot(ax=axs[3], legend=False, c='k', lw=1.5)
+m.plot(ax=axs[4], legend=False)
+m.median(axis=1).plot(ax=axs[4], legend=False, c='k', lw=1.5)
+a.plot(ax=axs[5], legend=False)
+a.median(axis=1).plot(ax=axs[5], legend=False, c='k', lw=1.5)
+tr.plot(ax=axs[6], legend=False)
+tr.median(axis=1).plot(ax=axs[6], legend=False, c='k', lw=1.5)
+for i in range(0,len(types)):
+    axs[i].set_ylabel(types[i])
+#%% Monthly year by types!
+li_df_types=[ub, rb, su, c, m, a, tr]
+fig, axs=plt.subplots(nrows=7, figsize=(12,10), sharex=True)
+for i in range(0,len(li_df_types)):
+    dft = li_df_types[i].copy(deep=True)
+    dft['date']=dft.index
+    dft['Month']=dft['date'].dt.month
+    dft['Year']=dft['date'].dt.year
+    dft.groupby(['Year', 'Month']).median().plot( legend=False,ax=axs[i])
+    axs[i].set_ylabel(types[i], fontsize=12)
+axs[0].set_ylim(0,15)
+fig.suptitle(comp, fontsize=14)
 
-
-
-for m, col in zip('xosd', df):
-    df[col].plot(marker=m)
-plt.legend()
-
-li_marker=[]
-li_color=[]
-for i in range(0,len(metadata[:-1])):
-    if metadata['Type.1'].iloc[i]=='AMS':
-        li_marker.append('D')
-    if metadata['Type.1'].iloc[i]=='Q':
-        li_marker.append('s')
-    if metadata['Type.1'].iloc[i]=='ToF':
-        li_marker.append('o')
-    #
-    if metadata['Type'].iloc[i]=='UB':
-        li_color.append('royalblue')
-    if metadata['Type'].iloc[i]=='RB':
-        li_color.append('green')
-    if metadata['Type'].iloc[i]=='C':
-        li_color.append('mediumpurple')
-    if metadata['Type'].iloc[i]=='SU':
-        li_color.append('darkorange')
-    if metadata['Type'].iloc[i]=='M':
-        li_color.append('sienna')
-
+#%%
+fig, axs=plt.subplots(nrows=len(ub.columns), figsize=(2,20))
+for j in range():
+    df=types[j]
+for i in range(0,len(ub.columns)):
+    ub[ub.columns[i]].plot(kind='kde', ax=axs[i], color='grey')
+    axs[i].set_ylabel(li_sites_names[i])
+#%%
+fig, axs=plt.subplots( figsize=(5,5))
+ub.median().plot(kind='kde', ax=axs, lw=3)
+rb.median().plot(kind='kde', ax=axs, lw=3)
+su.median().plot(kind='kde', ax=axs, lw=3)
+# c.mean().plot(kind='kde', ax=axs)
+# m.median().plot(kind='kde', ax=axs)
+# a.median().plot(kind='kde', ax=axs)
+tr.mean().plot(kind='kde', ax=axs, lw=3)
+axs.legend(['UB', 'RB', 'SU', 'TR']) 
+plt.title('OA', fontsize=15)
+axs.set_xlabel('Concentration ($μg·m^{-3}$)', fontsize=14)
+axs.set_ylabel('Frequency', fontsize=14)
+#%%
+fig, axs=plt.subplots(nrows=len(types), figsize=(7,9), sharex=True)
+for j in range(0,len(li_df_types)):
+    dft=li_df_types[j]
+    dft['date']=dft.index
+    dft['Year']=dft['date'].dt.year
+    df=pd.DataFrame()
+    for i in range(2011, 2024): 
+        a=dft.loc[ub['Year']==i,dft.columns.str.startswith(comp)]#.media n(axis=1)#. plot(ax=axs)#, color=rbw[i-2011], legend=True)
+        b=pd.concat([a[i] for i in a.columns])
+        df=pd.concat([df,b.reset_index()], axis=1)
+    df=df.drop('date', errors='ignore', axis=1)
+    df.columns=range(2011, 2024)
+    df.boxplot(showfliers=False, showmeans=True, boxprops=bp, fontsize=10, medianprops=mdp,meanprops=mp, whiskerprops=wp, rot=90, ax=axs[j])
+    axs[j].set_ylabel(types[j])
+axs[len(dft.columns)].set_xlabel('Years', fontsize=13)
+fig.suptitle('Org', fontsize=13)

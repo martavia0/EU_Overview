@@ -20,8 +20,8 @@ n	Site	Acronym	Type	Lat	Lon	Height	Country	Period_start	Period_end	NRPM1	PMF_Mat
 19	Kosetice	KOS	RB	49.583333	15.083333	534	Czech Republic	08/01/2019	14/10/2019	Y	N	Y	N	c-ToF-AMS	PM1	Standard	CDCE	30'	Stop	None	
 20	Krakow - AGH University	KRK	SU	50.08970467	19.890297	13	Poland	08/01/2018	10/04/2019	Y	Y	Y		Q	PM1	Standard	CE0.5	30'	Stop	Tobler et al. (2021)	
 21	Lille	ATOLL	SU	50.61	3.14	70	France	11/10/2016	31/12/2020	Y	Y	Y	N	Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (2023)	Output profiles are missing. 
-22	London - Marylebone Road	LONMR	TR	51.52	-0.154611	39	United Kingdom	01/08/2019	23/10/2020	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Draft	
-23	London - North Kensington	LONNK	UB	51.521	-0.2135	27	United Kingdom	23/11/2015	22/02/2018	Y	Y	Y		Q	PM1	Standard	CE0.5	30'	Stop	Draft	
+22	London - Marylebone Road	LON-MR	TR	51.52	-0.154611	39	United Kingdom	01/08/2019	23/10/2020	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Draft	
+23	London - North Kensington	LON-NK	UB	51.521	-0.2135	27	United Kingdom	23/11/2015	22/02/2018	Y	Y	Y		Q	PM1	Standard	CE0.5	30'	Stop	Draft	
 24	Mace Head	MH	RB	53.3	-9.9	5	Ireland	08/01/2016	13/07/2018	Y	N	N		c-ToF-AMS	PM1	Standard	CDCE	10'	Start	None	
 25	Magadino	MAG	RB	46.2	8.9	203	Switzerland	28/08/2013	30/10/2014	Y	Y	Y		Q	PM1	Standard	Other	30'	Stop	Chen et al. (2021)	
 26	Manchester	MAQS	UB	53.44417	-2.214444	43	United Kingdom	28/02/2020	04/04/2023	Y	N	N		Q	PM2.5	Capture	CE1	30'	Start	None	
