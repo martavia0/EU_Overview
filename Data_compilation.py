@@ -144,19 +144,20 @@ plt.savefig('Boxplots_'+comp+'.png')
 
 #%% Maybe now I should put them in teh daily pattern
 min_date = pd.date_range(start='01/01/2010', end = '31/12/2023', freq='D').strftime('%d/%m/%Y') #The complete time series
-li_days=[]
+li_days, li_nr=[], []
 for i in range(0,len(chem_comp)):
     print(i, li_sites_names[i], li_site_names[i])
     df1=pd.DataFrame(chem_comp.iloc[i][0])
     df1.reset_index(inplace=True, drop=True)
     df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True) 
     df1['date']=df1['datetime'].dt.date
-    df1d=df1.groupby(df1['date']).mean()
-    df1d=df1d.drop(columns=['Time (Local)', 'MSA', 'Seasalt'], axis=1, errors='ignore')
-    df1d['datetime']=pd.to_datetime(df1d.index, dayfirst=True)
+    df1=df1.drop(columns=['Time (Local)', 'Time (UTC)', 'MSA', 'Seasalt', 'datetime'], axis=1, errors='ignore')
+    df1d=df1#.groupby(by=df1['date']).mean(numeric_only=True)
+    # df1d['datetime']=pd.to_datetime(df1d.index, dayfirst=True)
     df1d.columns=['Chl_'+li_sites_names[i],'NH4_'+li_sites_names[i], 'NO3_'+li_sites_names[i],'Org_'+li_sites_names[i], 'SO4_'+li_sites_names[i], 'datetime_'+li_sites_names[i] ]
+    nr=pd.DataFrame({li_sites_names[i]: df1d.drop('datetime', errors='ignore').sum(axis=1)})
     li_days.append(df1d) #List of the datetimes
-    
+    li_nr.append(nr)
 #%% Merging DFS
 df=pd.DataFrame(pd.to_datetime(min_date, dayfirst=True), columns=['date'])
 li_days[0]['datet'] = pd.to_datetime(li_days[0].index)
@@ -195,6 +196,10 @@ for i in range(0,len(metadata[:-1])):
         li_color.append('darkorange')
     if metadata['Type'].iloc[i]=='M':
         li_color.append('sienna')
+    if metadata['Type'].iloc[i]=='A':
+        li_color.append('hotpink')
+    if metadata['Type'].iloc[i]=='TR':
+        li_color.append('darkcyan')
 dates_plot=dates_plot.notnull().astype('int')
 dates_plot=dates_plot.replace(0, np.nan)
 for i in range(0,len(dates_plot.columns)):
@@ -212,9 +217,10 @@ from matplotlib.patches import Patch
 legend_elements = [Line2D([0], [0], color='royalblue', label='Urban background', ),
                    Line2D([0], [0], color='green', label='Regional background'), 
                    Line2D([0], [0], color='darkorange', label='Suburban'), 
-                   Line2D([0], [0],  color='sienna', label='Mountain'), 
                    Line2D([0], [0],  color='mediumpurple', label='Coastal'),
                    Line2D([0], [0], color='sienna', label='Mountain'), 
+                   Line2D([0], [0], color='hotpink', label='Arctic'), 
+                   Line2D([0], [0], color='darkcyan', label='Traffic'), 
                    Line2D([0], [0], marker='D', color='grey', label='AMS'),
                    Line2D([0], [0], marker='s', color='grey', label='Q-ACSM'),
                    Line2D([0], [0], marker='o', color='grey', label='ToF-ACSM')]
@@ -318,3 +324,56 @@ for j in range(0,len(li_df_types)):
     axs[j].set_ylabel(types[j])
 axs[len(dft.columns)].set_xlabel('Years', fontsize=13)
 fig.suptitle('Org', fontsize=13)
+#%%
+'''     SUPERATIONS!!    '''
+
+limit_who_25_daily = 15
+limit_who_15_yearly= 5
+
+li_sup_daily, li_ndays = [],[]
+for i in range(0,len(li_nr)):
+    dfi=li_nr[i]
+    mask=dfi.iloc[:,0]>=limit_who_25_daily
+    sup_daily = dfi.loc[mask].count()[0]
+    ndays=len(dfi)
+    li_sup_daily.append(sup_daily)
+    li_ndays.append(ndays)
+sup_daily= pd.DataFrame(data={'Daily WHO superations':li_sup_daily, 'Nb days accounted':li_ndays})
+sup_daily.index=li_sites_names
+sup_daily['Percentage superations'] = 100*sup_daily['Daily WHO superations']/sup_daily['Nb days accounted']
+sup_daily['Type']=li_sites_types
+sup_daily['Type_int']=sup_daily['Type']
+sup_daily['Type_int']=sup_daily['Type_int'].replace('UB',0).replace('RB', 1).replace('SU', 2).replace('C', 3).replace('M', 4).replace('A',5).replace('TR', 6)
+
+
+colors=['royalblue','green', 'darkorange', 'mediumpurple', 'sienna', 'hotpink', 'darkcyan']
+# a=[colors[i] for i in sup_daily['Type_int']]
+fig, axs = plt.subplots(figsize=(8,8), ncols=2)
+sup_daily=sup_daily.sort_values(by='Percentage superations')
+sup_daily['Percentage superations'].plot(kind='barh', ax=axs[0], color=[colors[i] for i in sup_daily['Type_int']])
+axs[0].set_ylabel('Percentage of WHO PM$_{2.5}$ daily thresholds superation', fontsize=13)
+axs[0].set_xlim(0,100)
+axs[0].grid('x')
+axs[0].set_title('NR-PM$_1$ concentration')
+
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
+
+legend_elements = [Line2D([0], [0], color='royalblue', label='Urban background', ),
+                   Line2D([0], [0], color='green', label='Regional background'), 
+                   Line2D([0], [0], color='darkorange', label='Suburban'), 
+                   Line2D([0], [0],  color='mediumpurple', label='Coastal'),
+                   Line2D([0], [0], color='sienna', label='Mountain'), 
+                   Line2D([0], [0], color='hotpink', label='Arctic'), 
+                   Line2D([0], [0], color='darkcyan', label='Traffic')]
+
+axs[0].legend(handles=legend_elements, loc = (1.05,0.752))#'upper right')
+
+sup_pie=sup_daily.groupby('Type').mean()
+sup_pie=sup_pie.sort_values('Percentage superations', ascending=False)
+sup_pie.plot.pie(y='Percentage superations', ax=axs[1], legend=False,autopct='%2.0f%%', labels=None,pctdistance=0.7,fontsize=12, 
+                 startangle=90, counterclock=False, ylabel='', colors=['darkorange', 'royalblue', 'green', 'sienna', 'darkcyan', 'hotpink', 'mediumpurple'])
+#%% By months and by years
+for i in range(0, len(li_nr)):
+    a=li_nr[i]
+    a.index=li_days[i].loc[li_days[0].columns.str.startswith('datetime')]
