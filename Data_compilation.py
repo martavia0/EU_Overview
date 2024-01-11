@@ -51,7 +51,7 @@ all_files=glob.glob(path_data+'*Composition.txt')
 li_site_names = [j[-29:-25] for j in all_files]
 chem_comp=pd.DataFrame()
 chem_comp['Chemical_composition']=[pd.read_csv(i, sep='\t', na_values='null', keep_default_na=True) for i in all_files]
-li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRP', 'DEM', 'DUB', 'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAG','MAQS', 'MAR-LCP', 'MEL', 'MH', 'MI', 'MSY', 'NOA', 'PD', 'PRG-SUCH','PUY', 'SIRTA',  'SPC', 'TAR','VIR', 'ZEP', 'ZUR'] 
+li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRP', 'DEM', 'DUB', 'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAG','MAQS', 'MAR-LCP', 'MEL', 'MH', 'MI', 'MSC', 'MSY', 'NOA', 'PD', 'PRG-SUCH','PUY', 'SIRTA',  'SPC', 'TAR','VIR', 'ZEP', 'ZUR'] 
 chem_comp.index = li_sites_names
 #%% We import metadatafiles
 os.chdir(path_folder)
@@ -106,7 +106,7 @@ comp='Org'
 li_dfs=[]
 chem_compound,chem_compound_t, chem_dt=pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 for i in range(0,len(chem_comp)):
-    print(i, li_site_names[i])
+    print(i, li_sites_names[i])
     df1 = pd.DataFrame(chem_comp.iloc[i][0])
     df1.reset_index(inplace=True, drop=True)
     df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True)
@@ -142,8 +142,8 @@ plt.savefig('Boxplots_'+comp+'.png')
 # li_dfs=[j.drop('datetime', inplace=True, axis=1) for j in li_dfs]
 
 
-#%% Maybe now I should put them in teh daily pattern
-min_date = pd.date_range(start='01/01/2010', end = '31/12/2023', freq='D').strftime('%d/%m/%Y') #The complete time series
+#%% Maybe now I should put them in the daily pattern
+min_date = pd.date_range(start='01/01/2009', end = '31/12/2023', freq='D').strftime('%d/%m/%Y') #The complete time series
 li_days, li_nr=[], []
 for i in range(0,len(chem_comp)):
     print(i, li_sites_names[i], li_site_names[i])
@@ -151,9 +151,10 @@ for i in range(0,len(chem_comp)):
     df1.reset_index(inplace=True, drop=True)
     df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True) 
     df1['date']=df1['datetime'].dt.date
+    df1['Org'].astype(float)
     df1=df1.drop(columns=['Time (Local)', 'Time (UTC)', 'MSA', 'Seasalt', 'datetime'], axis=1, errors='ignore')
-    df1d=df1#.groupby(by=df1['date']).mean(numeric_only=True)
-    # df1d['datetime']=pd.to_datetime(df1d.index, dayfirst=True)
+    df1d=df1.groupby(by=df1['date']).mean(numeric_only=True)
+    df1d['datetime']=pd.to_datetime(df1d.index, dayfirst=True)
     df1d.columns=['Chl_'+li_sites_names[i],'NH4_'+li_sites_names[i], 'NO3_'+li_sites_names[i],'Org_'+li_sites_names[i], 'SO4_'+li_sites_names[i], 'datetime_'+li_sites_names[i] ]
     nr=pd.DataFrame({li_sites_names[i]: df1d.drop('datetime', errors='ignore').sum(axis=1)})
     li_days.append(df1d) #List of the datetimes
@@ -167,19 +168,23 @@ for i in range (1,len(li_days)):
     dates = pd.merge(dates,li_days[i], how='outer',left_on='date', right_on='datet', sort=True)
 dates=dates.drop(dates.index[-1])
 dates.index=dates['date']
-dates.plot(legend=False)
+# dates.plot(legend=False)
 
 #%% PLot availability
 dates_plot=dates.loc[:, dates.columns.str.startswith('datetime')]
 colors=['grey', ]
-for m, col in zip('xosd', df):
-    df[col].plot(marker=m)
-plt.legend()
+li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRP', 'DEM', 'DUB', 'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAG','MAQS', 'MAR-LCP', 'MEL', 'MH', 'MI', 'MSC', 'MSY', 'NOA', 'PD', 'PRG-SUCH','PUY', 'SIRTA',  'SPC', 'TAR','VIR', 'ZEP', 'ZUR'] 
 
+# for m, col in zip('xosd', df):
+#     df[col].plot(marker=m)
+# plt.legend()
 li_marker=[]
 li_color=[]
+metadata = metadata.sort_values('Acronym')
+metadata.index =range(0,len(metadata))
 for i in range(0,len(metadata[:-1])):
-    if metadata['Type.1'].iloc[i]=='AMS':
+    # print(i, metadata['Acronym'][i], dates_plot.columns[i], metadata['Type.1'][i])
+    if metadata['Type.1'].iloc[i]=='AMS' or metadata['Type.1'].iloc[i]=='Q-AMS' or  metadata['Type.1'].iloc[i]=='c-ToF-AMS' :
         li_marker.append('D')
     if metadata['Type.1'].iloc[i]=='Q':
         li_marker.append('s')
@@ -200,15 +205,24 @@ for i in range(0,len(metadata[:-1])):
         li_color.append('hotpink')
     if metadata['Type'].iloc[i]=='TR':
         li_color.append('darkcyan')
+        
 dates_plot=dates_plot.notnull().astype('int')
 dates_plot=dates_plot.replace(0, np.nan)
+
+li_color.append('royalblue')
+li_marker.append('s')
+
+li_sites_names.reverse()
+
 for i in range(0,len(dates_plot.columns)):
-    dates_plot[dates_plot.columns[i]]=dates_plot[dates_plot.columns[i]]*(i+1)
-fig, axs = plt.subplots(figsize=(9,8))
+    dates_plot[dates_plot.columns[i]]=dates_plot[dates_plot.columns[i]]*40-(i)
+fig, axs = plt.subplots(figsize=(10, 11))
 for m, col, c in zip(li_marker, dates_plot.columns, li_color):
-    dates_plot[col].plot(marker=m, lw=0,legend=False, ax=axs, color=c, grid=True)
+    dates_plot[col].plot(marker=m, lw=0, legend=False, ax=axs, color=c, grid=True)
 axs.set_yticks(range(0,len(dates_plot.columns)+1))
-axs.set_yticklabels(['']+li_sites_names)
+axs.set_yticklabels(['']+li_sites_names, fontsize=12)
+axs.set_xticklabels(range(2008,2025,2), fontsize=14, rotation=0)
+
 axs.set_xlabel('Time (years)', fontsize=14)
 axs.set_ylabel('Sites', fontsize=14)
 from matplotlib.lines import Line2D
@@ -224,21 +238,24 @@ legend_elements = [Line2D([0], [0], color='royalblue', label='Urban background',
                    Line2D([0], [0], marker='D', color='grey', label='AMS'),
                    Line2D([0], [0], marker='s', color='grey', label='Q-ACSM'),
                    Line2D([0], [0], marker='o', color='grey', label='ToF-ACSM')]
-axs.legend(handles=legend_elements, loc = (1.02,0.5))#'upper right')
-#Still to do: plot by type of instrument  or type of site. 
+axs.legend(handles=legend_elements, loc = (1.03,0.65))#'upper right')
+plt.title('Data availability')
 fig.savefig('Site_availability.png')
 
 
 #%%
-li_sites_types = []
-for i in range(0,len(li_sites_names)):
-    a=metadata.loc[metadata['Acronym']==li_sites_names[i]]['Type'].to_list()
-    li_sites_types.append(a[0])
+li_sites_names.reverse()
+# metadata=metadata.drop(35)
+metadata=metadata.reset_index()
+metadata['index']=metadata.index
+li_sites_types=metadata['Type'].to_list()
+
 sites=pd.DataFrame({'Name': li_sites_names, 'Type': li_sites_types})
-#%%
-comp = 'Org'
+#%%Plots all data for eaqch typeand in black the mean of them
+comp = 'SO4'
 col_list=[]
 types =['UB', 'RB', 'SU', 'C', 'M', 'A', 'TR']
+
 ub, rb, su, c, m, a, tr= pd.DataFrame(), pd.DataFrame(),pd.DataFrame(),pd.DataFrame(),pd.DataFrame(),pd.DataFrame(), pd.DataFrame()
 compound_dates=dates.loc[:, dates.columns.str.startswith(comp)]
 for i in range(0,len(compound_dates.columns)):
@@ -287,7 +304,7 @@ for i in range(0,len(li_df_types)):
 axs[0].set_ylim(0,15)
 fig.suptitle(comp, fontsize=14)
 
-#%%
+#%% ??
 fig, axs=plt.subplots(nrows=len(ub.columns), figsize=(2,20))
 for j in range():
     df=types[j]
@@ -296,17 +313,18 @@ for i in range(0,len(ub.columns)):
     axs[i].set_ylabel(li_sites_names[i])
 #%%
 fig, axs=plt.subplots( figsize=(5,5))
-ub.median().plot(kind='kde', ax=axs, lw=3)
-rb.median().plot(kind='kde', ax=axs, lw=3)
-su.median().plot(kind='kde', ax=axs, lw=3)
+ub.median().plot(kind='kde', ax=axs, lw=3, color='royalblue')
+rb.median().plot(kind='kde', ax=axs, lw=3, c ='green')
+su.median().plot(kind='kde', ax=axs, lw=3, c='darkorange')
 # c.mean().plot(kind='kde', ax=axs)
-# m.median().plot(kind='kde', ax=axs)
+m.median().plot(kind='kde', ax=axs, lw=3, color = 'sienna' )
 # a.median().plot(kind='kde', ax=axs)
-tr.mean().plot(kind='kde', ax=axs, lw=3)
-axs.legend(['UB', 'RB', 'SU', 'TR']) 
-plt.title('OA', fontsize=15)
+tr.mean().plot(kind='kde', ax=axs, lw=3, color ='darkcyan' )
+axs.legend(['UB', 'RB', 'SU', 'M', 'TR']) 
+plt.title(comp, fontsize=15)
 axs.set_xlabel('Concentration ($μg·m^{-3}$)', fontsize=14)
 axs.set_ylabel('Frequency', fontsize=14)
+# colors=['darkorange', 'royalblue', 'green', 'sienna', 'darkcyan', 'hotpink', 'mediumpurple'])
 #%%
 fig, axs=plt.subplots(nrows=len(types), figsize=(7,9), sharex=True)
 for j in range(0,len(li_df_types)):
@@ -323,7 +341,7 @@ for j in range(0,len(li_df_types)):
     df.boxplot(showfliers=False, showmeans=True, boxprops=bp, fontsize=10, medianprops=mdp,meanprops=mp, whiskerprops=wp, rot=90, ax=axs[j])
     axs[j].set_ylabel(types[j])
 axs[len(dft.columns)].set_xlabel('Years', fontsize=13)
-fig.suptitle('Org', fontsize=13)
+fig.suptitle(comp, fontsize=13)
 #%%
 '''     SUPERATIONS!!    '''
 
@@ -350,10 +368,10 @@ colors=['royalblue','green', 'darkorange', 'mediumpurple', 'sienna', 'hotpink', 
 # a=[colors[i] for i in sup_daily['Type_int']]
 fig, axs = plt.subplots(figsize=(8,8), ncols=2)
 sup_daily=sup_daily.sort_values(by='Percentage superations')
-sup_daily['Percentage superations'].plot(kind='barh', ax=axs[0], color=[colors[i] for i in sup_daily['Type_int']])
+sup_daily['Percentage superations'].plot(kind='barh', ax=axs[0], color=[colors[i] for i in sup_daily['Type_int']], zorder=3)
 axs[0].set_ylabel('Percentage of WHO PM$_{2.5}$ daily thresholds superation', fontsize=13)
 axs[0].set_xlim(0,100)
-axs[0].grid('x')
+axs[0].grid(axis='x', zorder=0)
 axs[0].set_title('NR-PM$_1$ concentration')
 
 from matplotlib.lines import Line2D
@@ -374,6 +392,16 @@ sup_pie=sup_pie.sort_values('Percentage superations', ascending=False)
 sup_pie.plot.pie(y='Percentage superations', ax=axs[1], legend=False,autopct='%2.0f%%', labels=None,pctdistance=0.7,fontsize=12, 
                  startangle=90, counterclock=False, ylabel='', colors=['darkorange', 'royalblue', 'green', 'sienna', 'darkcyan', 'hotpink', 'mediumpurple'])
 #%% By months and by years
+li_year=[]
+df_year=pd.DataFrame()
+df_year.index=range(2010, 2024)
 for i in range(0, len(li_nr)):
-    a=li_nr[i]
-    a.index=li_days[i].loc[li_days[0].columns.str.startswith('datetime')]
+    a=li_nr[i].copy(deep=True)
+    a['dt']=li_days[i].loc[:,li_days[i].columns.str.startswith('datetime')]
+    a['date']=pd.to_datetime(a['dt'], dayfirst=True)
+    a['Year']=a['date'].dt.year    
+    mask=a.iloc[:,0]>=limit_who_25_daily
+    b = a.loc[mask]
+    df_year[li_sites_names[i]]=b.groupby('Year').count()['dt']
+ 
+df_year.plot(kind='bar', legend=False)
