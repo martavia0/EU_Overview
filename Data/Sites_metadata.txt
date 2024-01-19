@@ -21,20 +21,20 @@ n	Site	Acronym	Type	Lat	Lon	Height	Country	Period_start	Period_end	NRPM1	PMF_Mat
 20	Krakow - AGH University	KRK	SU	50.08970467	19.890297	13	Poland	08/01/2018	10/04/2019	Y	Y	Y		Q	PM1	Standard	CE0.5	30'	Stop	Tobler et al. (2021)	
 21	London - Marylebone Road	LONMR	TR	51.52	-0.154611	39	United Kingdom	01/08/2019	23/10/2020	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Draft	
 22	London - North Kensington	LONNK	UB	51.521	-0.2135	27	United Kingdom	23/11/2015	22/02/2018	Y	Y	Y		Q	PM1	Standard	CE0.5	30'	Stop	Draft	
-23	Magadino	MAG	RB	46.2	8.9	203	Switzerland	28/08/2013	30/10/2014	Y	Y	Y		Q	PM1	Standard	Other	30'	Stop	Chen et al. (2021)	
-24	Manchester	MAQS	UB	53.44417	-2.214444	43	United Kingdom	28/02/2020	04/04/2023	Y	N	N		Q	PM2.5	Capture	CE1	30'	Stop	None	
-25	Marseille	MAR-LCP	UB	43.305233	5.394692	71	France	31/07/2017	30/12/2022	Y	Y	Y		ToF	PM1	Standard	CDCE	10'	Stop	Chazeau et al. (2021)	
-26	Melpitz	MEL	RB	51.54	12.93	86	Germany	08/09/2016	31/08/2017	Y	N	Y	N	Q	PM1	Standard	CDCE	1h 	Stop	Poulain et al. (2020), Atabaksh et al. (2023)	
-27	Mace Head	MH	RB	53.3	-9.9	5	Ireland	08/01/2016	13/07/2018	Y	N	N		c-ToF-AMS	PM1	Standard	CDCE	10'	Stop	None	
-28	Milano Pascal	MI	UB	45.478611	9.234444	118	Italy	03/02/2014	28/02/2014	Y	Y	Y		AMS	PM1	Standard	CDCE	5'	Stop	None	
-29	Montsec	MSC	M	42.05	0.72	1570	Spain	14/07/2011	23/04/2012	Y	N	N	N	Q	PM1	Standard	CDCE	1h	Stop	Ripoll et al. (2015)	
-30	Montseny	MSY	RB	41.779342	2.358033	720	Spain	18/08/2021	30/05/2022	Y	Y	N		ToF	PM1	Standart	CDCE	10'	Stop	None	
-31	Athens -Thissio	NOA	UB	37.97344	23.718085	105	Greece	01/01/2017	01/12/2021	Y	Y	N		Q	PM1	Standard	CDCE	30'	Stop	None	
-32	Padova Granze	PD	UB	45.3775	11.94	11	Italy	26/01/2014	28/02/2014	Y	N	Y		AMS	PM1	Standard	CDCE	30'	Stop	None	PMF Mats are missing. 
-33	Prague - Suchdol	PRG-SUCH	UB	50.1	14.4	277	Czech Republic	20/06/2012	15/05/2013	Y	Y	N		AMS	PM1	Standard	Other	30'	Stop	Kubelová et al. (2015)	
-34	Puy de Dome	PUY	M	45.76667	2.95	1465	France	06/06/2019	30/12/2020	Y	N	N		ToF	PM1	Standard	CDCE	1h 	Stop	None	
-35	Gif-sur-Yvette	SIRTA	SU	48.71	2.15	163	France	01/06/2011	26/12/2022	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Zhang et al. (2019)	
-36	Hyytiala	SMR	RB	61.8	24.3	181	Finland	31/12/2011	31/12/2020	Y	Y	Y		Q	PM1	Standard	Other	??	Start	Heikkinen et al. (2020)	
+23	Madrid - CIEMAT	MAD	UB	40.456436	-3.725631	669	Spain	21/09/2019	31/12/2023	Y	N	N		Q	PM1	Standard	CE0.5	30'	Stop		
+24	Magadino	MAG	RB	46.2	8.9	203	Switzerland	28/08/2013	30/10/2014	Y	Y	Y		Q	PM1	Standard	Other	30'	Stop	Chen et al. (2021)	
+25	Manchester	MAQS	UB	53.44417	-2.214444	43	United Kingdom	28/02/2020	04/04/2023	Y	N	N		Q	PM2.5	Capture	CE1	30'	Stop	None	
+26	Marseille	MAR-LCP	UB	43.305233	5.394692	71	France	31/07/2017	30/12/2022	Y	Y	Y		ToF	PM1	Standard	CDCE	10'	Stop	Chazeau et al. (2021)	
+27	Melpitz	MEL	RB	51.54	12.93	86	Germany	08/09/2016	31/08/2017	Y	N	Y	N	Q	PM1	Standard	CDCE	1h 	Stop	Poulain et al. (2020), Atabaksh et al. (2023)	
+28	Mace Head	MH	RB	53.3	-9.9	5	Ireland	08/01/2016	13/07/2018	Y	N	N		c-ToF-AMS	PM1	Standard	CDCE	10'	Stop	None	
+29	Milano Pascal	MI	UB	45.478611	9.234444	118	Italy	03/02/2014	28/02/2014	Y	Y	Y		AMS	PM1	Standard	CDCE	5'	Stop	None	
+30	Montsec	MSC	M	42.05	0.72	1570	Spain	14/07/2011	23/04/2012	Y	N	N	N	Q	PM1	Standard	CDCE	1h	Stop	Ripoll et al. (2015)	
+31	Montseny	MSY	RB	41.779342	2.358033	720	Spain	18/08/2021	30/05/2022	Y	Y	N		ToF	PM1	Standart	CDCE	10'	Stop	None	
+32	Athens -Thissio	NOA	UB	37.97344	23.718085	105	Greece	01/01/2017	01/12/2021	Y	Y	N		Q	PM1	Standard	CDCE	30'	Stop	None	
+33	Padova Granze	PD	UB	45.3775	11.94	11	Italy	26/01/2014	28/02/2014	Y	N	Y		AMS	PM1	Standard	CDCE	30'	Stop	None	PMF Mats are missing. 
+34	Prague - Suchdol	PRG-SUCH	UB	50.1	14.4	277	Czech Republic	20/06/2012	15/05/2013	Y	Y	N		AMS	PM1	Standard	Other	30'	Stop	Kubelová et al. (2015)	
+35	Puy de Dome	PUY	M	45.76667	2.95	1465	France	06/06/2019	30/12/2020	Y	N	N		ToF	PM1	Standard	CDCE	1h 	Stop	None	
+36	Gif-sur-Yvette	SIRTA	SU	48.71	2.15	163	France	01/06/2011	26/12/2022	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Zhang et al. (2019)	
 37	San Pietro Capofiume	SPC	RB	44.524444	11.524444	-	Italy	14/11/2011	09/12/2015	Y	N	Y		AMS	PM1	Standard	CE05	5'	Stop	Gilardoni et al. (2014)	
 38	Tartu	TAR	UB	58.3706	26.7349	39	Estonia	01/09/2016	24/07/2017	Y	N	Y	N	Q	PM1	Standard	CDCE	1h 	Stop	None	
 39	Virohlahti	VIR	RB	60.5	27.7	7	Finland	15/06/2012	07/06/2013	Y	N	N		Q	PM1	Standard	??	30'	Stop	None	

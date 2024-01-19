@@ -51,7 +51,7 @@ all_files=glob.glob(path_data+'*Composition.txt')
 li_site_names = [j[-29:-25] for j in all_files]
 chem_comp=pd.DataFrame()
 chem_comp['Chemical_composition']=[pd.read_csv(i, sep='\t', na_values='null', keep_default_na=True) for i in all_files]
-li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRP', 'DEM', 'DUB', 'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAG','MAQS', 'MAR-LCP', 'MEL', 'MH', 'MI', 'MSC', 'MSY', 'NOA', 'PD', 'PRG-SUCH','PUY', 'SIRTA',  'SPC', 'TAR','VIR', 'ZEP', 'ZUR'] 
+li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRP', 'DEM', 'DUB', 'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAD-CIE', 'MAG','MAQS', 'MAR-LCP', 'MEL', 'MH', 'MI', 'MSC', 'MSY', 'NOA', 'PD', 'PRG-SUCH','PUY', 'SIRTA',  'SPC', 'TAR','VIR', 'ZEP', 'ZUR'] 
 chem_comp.index = li_sites_names
 #%% We import metadatafiles
 os.chdir(path_folder)
@@ -118,6 +118,10 @@ for i in range(0,len(chem_comp)):
 chem_compound.columns=chem_comp.index
 chem_compound_t.columns=['All sites']#­metadata['Acronym']
 chem_dt.columns=['All times']
+
+#%% 
+for i in range(0,len(li_site_names)):
+    print(li_site_names[i], li_sites_names[i])
 #%%
 chem_dt['All_times'] = pd.to_datetime(chem_dt['All times'], dayfirst=True, utc=True)
 chem_compound_t['Hour'] = chem_dt['All_times'].dt.hour
@@ -171,9 +175,13 @@ dates.index=dates['date']
 # dates.plot(legend=False)
 
 #%% PLot availability
+metadata.drop(36, axis=0)
 dates_plot=dates.loc[:, dates.columns.str.startswith('datetime')]
 colors=['grey', ]
-li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRP', 'DEM', 'DUB', 'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAG','MAQS', 'MAR-LCP', 'MEL', 'MH', 'MI', 'MSC', 'MSY', 'NOA', 'PD', 'PRG-SUCH','PUY', 'SIRTA',  'SPC', 'TAR','VIR', 'ZEP', 'ZUR'] 
+li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRP', 'DEM', 'DUB', 
+                  'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAD-CIE', 
+                  'MAG','MAQS', 'MAR-LCP', 'MEL', 'MH', 'MI', 'MSC', 'MSY', 'NOA', 'PD', 'PRG-SUCH','PUY', 'SIRTA',  
+                  'SPC', 'TAR','VIR', 'ZEP', 'ZUR'] 
 
 # for m, col in zip('xosd', df):
 #     df[col].plot(marker=m)
@@ -182,30 +190,30 @@ li_marker=[]
 li_color=[]
 metadata = metadata.sort_values('Acronym')
 metadata.index =range(0,len(metadata))
-for i in range(0,len(metadata[:-1])):
-    # print(i, metadata['Acronym'][i], dates_plot.columns[i], metadata['Type.1'][i])
+for i in range(0,len(metadata)):
+    print(i, metadata['Acronym'][i])
     if metadata['Type.1'].iloc[i]=='AMS' or metadata['Type.1'].iloc[i]=='Q-AMS' or  metadata['Type.1'].iloc[i]=='c-ToF-AMS' :
         li_marker.append('D')
-    if metadata['Type.1'].iloc[i]=='Q':
+    elif metadata['Type.1'].iloc[i]=='Q':
         li_marker.append('s')
-    if metadata['Type.1'].iloc[i]=='ToF':
+    elif metadata['Type.1'].iloc[i]=='ToF':
         li_marker.append('o')
     #
     if metadata['Type'].iloc[i]=='UB':
         li_color.append('royalblue')
-    if metadata['Type'].iloc[i]=='RB':
+    elif metadata['Type'].iloc[i]=='RB':
         li_color.append('green')
-    if metadata['Type'].iloc[i]=='C':
+    elif metadata['Type'].iloc[i]=='C':
         li_color.append('mediumpurple')
-    if metadata['Type'].iloc[i]=='SU':
+    elif metadata['Type'].iloc[i]=='SU':
         li_color.append('darkorange')
-    if metadata['Type'].iloc[i]=='M':
+    elif metadata['Type'].iloc[i]=='M':
         li_color.append('sienna')
-    if metadata['Type'].iloc[i]=='A':
+    elif metadata['Type'].iloc[i]=='A':
         li_color.append('hotpink')
-    if metadata['Type'].iloc[i]=='TR':
+    elif metadata['Type'].iloc[i]=='TR':
         li_color.append('darkcyan')
-        
+       
 dates_plot=dates_plot.notnull().astype('int')
 dates_plot=dates_plot.replace(0, np.nan)
 
@@ -215,7 +223,8 @@ li_marker.append('s')
 li_sites_names.reverse()
 
 for i in range(0,len(dates_plot.columns)):
-    dates_plot[dates_plot.columns[i]]=dates_plot[dates_plot.columns[i]]*40-(i)
+    # print(dates_plot.columns[i])
+    dates_plot[dates_plot.columns[i]]=dates_plot[dates_plot.columns[i]]*41-(i)
 fig, axs = plt.subplots(figsize=(10, 11))
 for m, col, c in zip(li_marker, dates_plot.columns, li_color):
     dates_plot[col].plot(marker=m, lw=0, legend=False, ax=axs, color=c, grid=True)
@@ -242,7 +251,6 @@ axs.legend(handles=legend_elements, loc = (1.03,0.65))#'upper right')
 plt.title('Data availability')
 fig.savefig('Site_availability.png')
 
-
 #%%
 li_sites_names.reverse()
 # metadata=metadata.drop(35)
@@ -252,7 +260,7 @@ li_sites_types=metadata['Type'].to_list()
 
 sites=pd.DataFrame({'Name': li_sites_names, 'Type': li_sites_types})
 #%%Plots all data for eaqch typeand in black the mean of them
-comp = 'SO4'
+comp = 'Org'
 col_list=[]
 types =['UB', 'RB', 'SU', 'C', 'M', 'A', 'TR']
 
@@ -304,13 +312,7 @@ for i in range(0,len(li_df_types)):
 axs[0].set_ylim(0,15)
 fig.suptitle(comp, fontsize=14)
 
-#%% ??
-fig, axs=plt.subplots(nrows=len(ub.columns), figsize=(2,20))
-for j in range():
-    df=types[j]
-for i in range(0,len(ub.columns)):
-    ub[ub.columns[i]].plot(kind='kde', ax=axs[i], color='grey')
-    axs[i].set_ylabel(li_sites_names[i])
+
 #%%
 fig, axs=plt.subplots( figsize=(5,5))
 ub.median().plot(kind='kde', ax=axs, lw=3, color='royalblue')
@@ -405,3 +407,4 @@ for i in range(0, len(li_nr)):
     df_year[li_sites_names[i]]=b.groupby('Year').count()['dt']
  
 df_year.plot(kind='bar', legend=False)
+#%%
