@@ -100,6 +100,8 @@ for i in range(0,len(nr_dfs)):
     dfi.groupby('Hour').mean().plot( y=nr_pm1, ax=axs[3], legend=False, color=cl_nrpm1)
     plt.suptitle(li_sites_names[i])
     plt.savefig(li_sites_names[i]+'_NRPM1_means.png')
+
+
 #%% Average plots compound - Boxplot
 os.chdir(path_folder + "Preliminar Plots/Chemical Composition/")
 comp='Org'
@@ -407,4 +409,135 @@ for i in range(0, len(li_nr)):
     df_year[li_sites_names[i]]=b.groupby('Year').count()['dt']
  
 df_year.plot(kind='bar', legend=False)
+#%% MAPPPPP
+li_nr_avg=[]
+for i in range(0,len(nr_dfs)):
+    df=nr_dfs[i]
+    if li_sites_names[i] =='ZEP':
+        df['nr'] = df['OA']+df['Sulphate']+df['Nitrate']+df['Chloride']
+    elif li_sites_names[i] =='FKL' or li_sites_names[i]=='MH' or li_sites_names[i]=='BIR':
+        df['nr'] = df['OA']+df['Sulphate']+df['Nitrate']+df['Ammonium']
+    else:
+        df['nr'] = df['OA']+df['Sulphate']+df['Nitrate']+df['Ammonium']+df['Chloride']
+    li_nr_avg.append(df['nr'].mean())
+    print(i, li_sites_names[i], df['nr'].mean())
+metadata['NR']=li_nr_avg
+
+
+plt.rcParams['lines.markersize'] ** 2
+import geopandas as gpd
+countries = gpd.read_file(gpd.datasets.get_path("naturalearth_lowres"))
+fig, axs = plt.subplots(figsize=(10,8))
+countries.head()
+countries.plot(color="lightgrey", ax=axs)
+md=metadata.copy(deep=True)
+countries.boundary.plot(ax=axs, color='k', zorder=0)
+mask_ub=md['Type']=='UB'
+mask_rb=md['Type']=='RB'
+mask_su=md['Type']=='SU'
+mask_c=md['Type']=='C'
+mask_m=md['Type']=='M'
+mask_tr=md['Type']=='TR'
+mask_a=md['Type']=='A'
+md['NR2']=md['NR']*15
+
+md.loc[mask_ub].plot.scatter(x="Lon", y="Lat", s='NR2', alpha=0.5, c='royalblue', ax=axs,linewidths=2, zorder=4, label = 'Urban background')
+md.loc[mask_rb].plot.scatter(x="Lon", y="Lat", s='NR2', alpha=0.5, c='green', ax=axs,linewidths=2, zorder=6, label='Remote Background')
+md.loc[mask_su].plot.scatter(x="Lon", y="Lat", s='NR2', alpha=0.5, c='darkorange', ax=axs,linewidths=2,zorder=5, label = 'Suburban'  )
+md.loc[mask_c].plot.scatter(x="Lon", y="Lat", s='NR2', alpha=0.5, c='purple', ax=axs,linewidths=2, zorder=7, label = 'Coastal' )
+md.loc[mask_m].plot.scatter(x="Lon", y="Lat", s='NR2', alpha=0.5, c='saddlebrown', ax=axs,linewidths=2, zorder=8, label = 'Mountain' )
+md.loc[mask_tr].plot.scatter(x="Lon", y="Lat", s='NR2', alpha=0.5, c='darkcyan', ax=axs,linewidths=2, zorder=4, label = 'Traffic')
+md.loc[mask_a].plot.scatter(x="Lon", y="Lat", s='NR2', c='hotpink', ax=axs, zorder=9,linewidths=2,label = 'Arctic' )
+
+# plt.legend(*sc.legend_elements("sizes"))
+axs.set_xlim(-20, 40)
+axs.set_ylim(33, 75)
+axs.set_ylabel('')
+axs.set_xlabel('')
+plt.legend(loc='center left', bbox_to_anchor=(1.01, 0.5), labelspacing=1)
 #%%
+plt.rcParams['lines.markersize'] ** 2
+import geopandas as gpd
+countries = gpd.read_file(gpd.datasets.get_path("naturalearth_lowres"))
+countries = gpd.read_file(gpd.datasets.get_path("naturalearth_lowres"))
+antarct=countries[countries.name == 'Antarctica']
+
+fig, axs = plt.subplots(figsize=(5,5))
+# countries.head()
+antarct.plot(color="lightgrey", ax=axs)
+antarct.boundary.plot(ax=axs, color='k', zorder=0)
+md.loc[mask_a].plot.scatter(x="Lon", y="Lat", s='NR2', c='hotpink', ax=axs, zorder=9,linewidths=2,legend=False)
+# axs.set_xlim(-80,-40)
+# axs.set_ylim(-90,-60 )
+axs.set_ylabel('')
+axs.set_xlabel('')
+#%%
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+from shapely.geometry import Point
+
+crs = ccrs.SouthPolarStereo()
+crs_proj4 = crs.proj4_init
+w = world.to_crs(crs_proj4)
+
+fig, ax = plt.subplots(subplot_kw=dict(projection=crs))
+w.plot(ax=ax, facecolor='sandybrown', edgecolor='black')
+
+# Show the plot
+plt.show()
+
+#%%
+'''
+**************** SOURCE APPORTIONMENT *********************'''
+#%%
+os.chdir(path_data)
+hpb=pd.read_csv('HPB_PMF_Output_TS.txt', sep='\t')
+
+hpb['datetime']=pd.to_datetime(hpb['PMF Time (UTC)'], dayfirst=True)#, format="%d/m/%Y %H:%M")
+#%% IMPORT ALL FILES
+os.chdir(path_data)
+all_files=glob.glob(path_data+'*Output_TS.txt')
+li_site_names_oa = [j[-21:-18] for j in all_files]
+li_site_names_oa_all = [j[-31:-12] for j in all_files]
+
+oa_sa=pd.DataFrame()
+oa_sa['OA_SA']=[pd.read_csv(i, sep='\t', na_values='null', keep_default_na=True) for i in all_files]
+li_sites_names_oa = ['ATOLL', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRP', 'DEM', 'DUB', 
+                     'GRA', 'HPB', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAG', 'MARLCP',
+                     'MEL','MI', 'PD','SIRTA',  'SMR', 'SPC', 'TAR','ZUR'] 
+oa_sa.index = li_sites_names_oa
+for i in range(0,len(oa_sa)):
+    print(i, li_sites_names_oa[i])
+    oai=oa_sa.loc[li_sites_names_oa[i]][0]
+    oai['datetime'] = pd.to_datetime(oai['PMF Time (UTC)'], dayfirst=True)
+    oa_s.append(oai)
+#%% Factors adjustments
+
+factors_names = pd.DataFrame([dfi.columns[2:-1] for dfi in oa_sa['OA_SA']])
+factors_names.index=li_sites_names_oa
+colors_oasa=factors_names.replace({'HOA': 'grey', 'COA': 'mediumpurple', 'Amine-OA': 'skyblue', 
+                                   'BBOA': 'saddlebrown', 'LO-OOA': 'yellowgreen','MO-OOA':'darkgreen', 
+                                   'OOA': 'green', 'Total OOA':'green', 'OOA_BB': 'olivedrab', 'OOA_BBaq':'olive',
+                                   'HOA-1': 'grey', 'HOA-2': 'dimgrey', 'CSOA': 'rosybrown', 'Wood': 'sienna', 
+                                   'Peat': 'sienna', 'Coal': 'sienna', 'POA': 'darkkhaki', 'CCOA': 'sandybrown',
+                                   '58-OA': 'hotpink', 'ShInd-OA': 'purple', 'seasalt':'darkcyan' })
+#%% SA: INDIVIDUAL PLOTS I
+from matplotlib.patches import Rectangle
+os.chdir(path_individual_wdws)
+oa=[]
+
+for i in range(0,len(oa_sa)):
+    print(i, li_sites_names_oa[i])
+    oai=oa_sa.loc[li_sites_names_oa[i]][0]
+    colours= [x for x in colors_oasa.loc[li_sites_names_oa[i]].tolist() if x is not None]
+    oai_m=oai.iloc[:,2:-1].mean()
+    fig, axs=plt.subplots(figsize=(5,5))
+    oai_m.plot.pie(autopct='%1.0f%%',colors=colours, fontsize=12)
+    fig.suptitle(li_sites_names_oa[i])
+    axs.add_patch(Rectangle((-0.26, -0.22),0.6, 0.4, facecolor='white', fill=True)) 
+    oa_total = oai[[x for x in factors_names.loc[li_sites_names_oa[i]].tolist() if x is not None]].sum(axis=1).mean()
+    axs.text(x=-0.24, y=-0.13, s='OA = '+str(oa_total.round(1))+'\n $μg·m^{-3}$', fontsize=12)
+    plt.savefig(li_sites_names_oa[i]+'_OASA_means.png')
+
+
