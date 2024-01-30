@@ -150,7 +150,7 @@ plt.savefig('Boxplots_'+comp+'.png')
 
 #%% Maybe now I should put them in the daily pattern
 min_date = pd.date_range(start='01/01/2009', end = '31/12/2023', freq='D').strftime('%d/%m/%Y') #The complete time series
-li_days, li_nr=[], []
+li_days, li_nr, li_dfs=[], [], []
 for i in range(0,len(chem_comp)):
     print(i, li_sites_names[i], li_site_names[i])
     df1=pd.DataFrame(chem_comp.iloc[i][0])
@@ -162,6 +162,7 @@ for i in range(0,len(chem_comp)):
     df1d=df1.groupby(by=df1['date']).mean(numeric_only=True)
     df1d['datetime']=pd.to_datetime(df1d.index, dayfirst=True)
     df1d.columns=['Chl_'+li_sites_names[i],'NH4_'+li_sites_names[i], 'NO3_'+li_sites_names[i],'Org_'+li_sites_names[i], 'SO4_'+li_sites_names[i], 'datetime_'+li_sites_names[i] ]
+    li_dfs.append(df1d)
     nr=pd.DataFrame({li_sites_names[i]: df1d.drop('datetime', errors='ignore').sum(axis=1, numeric_only=True)})
     li_days.append(df1d) #List of the datetimes
     li_nr.append(nr)
@@ -433,12 +434,76 @@ axs.grid(axis='y', zorder=0)
 axs.grid(axis='x', zorder=0)
 
 #%%
-dfplot.plot(kind='bar', stacked=)
+li_year=[]
+df_year=pd.DataFrame()
+day_count=pd.DataFrame()
+month_to_season_dct = {1: 'DJF', 2: 'DJF',3: 'MAM', 4: 'MAM', 5: 'MAM',6: 'JJA', 7: 'JJA', 8: 'JJA',9: 'SON', 10: 'SON', 11: 'SON',12: 'DJF'}
+# df_year.index=range(2010, 2024)
+# day_count.index=range(2010, 2024)
+for i in range(0, len(li_nr)):
+    a=li_nr[i].copy(deep=True)
+    a['dt']=li_days[i].loc[:,li_days[i].columns.str.startswith('datetime')]
+    a['date']=pd.to_datetime(a['dt'], dayfirst=True)
+    a['Year']=a['date'].dt.year    
+    a['Month'] = a['date'].dt.month
+    a['Season'] = [month_to_season_dct.get(t_stamp.month) for t_stamp in a.date]
+    mask=a.iloc[:,0]>=limit_who_25_daily
+    b = a.loc[mask]
+    df_year[li_sites_names[i]]=b.groupby('Season').count()['dt']
+    day_count[li_sites_names[i]] = a.groupby('Season').count()['dt']
 
+fig, axs=plt.subplots(figsize=(4,8))
+df_plt=100*df_year /day_count
+df_plot=100*df_plt/df_plt.sum()
+df_plot=df_plot.T
+df_plot=df_plot[['DJF', 'MAM', 'JJA', 'SON' ]]
+df_plot=df_plot.iloc[::-1]
+df_plot.plot(kind='barh', stacked=True,ax=axs, legend=False, zorder=3,
+             color=['royalblue', 'yellowgreen', 'gold', 'orange'])
+axs.grid('y', zorder=2)
+axs.set_xlabel('Percentage of superations per season (%)')
+axs.set_ylabel('Site')
 
+axs.legend(loc=(-0.15,-0.15), ncol=4)
+#%% Average days per season with superation
+fig, axs=plt.subplots(figsize=(4,4))
+df_plot.mean().plot(kind='bar',  yerr=df_plot.std(), color='grey', ax=axs, zorder=2)
+axs.grid(axis='y', zorder=0)
+axs.set_ylabel('Percentage of days with \nsuperation per season (%)')
 
+#%% Average days per season per type of site
+li_sites_types.reverse()
+df_plot['Types']=li_sites_types
+dfp=df_plot.groupby('Types').mean()
+dfp=dfp.iloc[::-1]
 
-
+fig, axs=plt.subplots(figsize=(6,3))
+dfp.plot(kind='bar', zorder=3, color = ['royalblue', 'yellowgreen', 'gold', 'orange'], ax=axs)
+axs.grid(axis='y', zorder=1)
+axs.legend(loc=(1.01, 0.5))
+axs.set_ylabel('Percentage of days \nof superation (%)')
+axs.set_xlabel('Types of site')
+#%%Composition on superation days (NR-PM1)
+li_sup=[]
+df_sup, df_sup_count=pd.DataFrame(), pd.DataFrame()
+for i in range(0, len(li_nr)):
+    print(i, li_sites_names[i])
+    a=li_dfs[i].copy(deep=True)
+    a['NR']=li_nr[i].iloc[:,0]
+    a['dt']=li_days[i].loc[:,li_days[i].columns.str.startswith('datetime')]
+    a['date']=a['dt'].dt.date
+    b=a.groupby(a['date']).mean()
+    mask =b['NR']>=limit_who_25_daily
+    c = b.loc[mask].mean(axis=0, numeric_only=True)
+    li_sup.append(c)
+df_sup=pd.DataFrame(li_sup)
+#%% Composition
+for i in df
+#%%
+    mask=a.iloc[:,0]>=limit_who_25_daily
+    b = a.loc[mask]
+    df_year[li_sites_names[i]]=b.groupby('Season').count()['dt']
+    day_count[li_sites_names[i]] = a.groupby('Season').count()['dt']
 
 
 #%% MAPPPPP
@@ -518,6 +583,18 @@ w.plot(ax=ax, facecolor='sandybrown', edgecolor='black')
 
 # Show the plot
 plt.show()
+#%%
+# Import libraries
+import os
+import matplotlib.pyplot as plt
+import geopandas as gpd
+import earthpy as et
+
+# Get the data & set working dir
+data = et.data.get_data('spatial-vector-lidar')
+os.chdir(os.path.join(et.io.HOME, 'earth-analytics', "data"))
+
+
 
 #%%
 '''
@@ -577,6 +654,7 @@ li_days, li_oad=[], []
 for i in range(0,len(chem_comp)):
     print(i, li_sites_names_oa[i])
     df1=pd.DataFrame(oa_sa.iloc[i][0])
+    df1['datetime']=pd.to_datetime('PMF Time (UTC)')
     df1.reset_index(inplace=True, drop=True)
     df1['date']=df1['datetime'].dt.date
     # df1=df1.drop(columns=['Time (Local)', 'Time (UTC)', 'MSA', 'Seasalt', 'datetime'], axis=1, errors='ignore')
