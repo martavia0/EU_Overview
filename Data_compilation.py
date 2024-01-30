@@ -71,7 +71,7 @@ for i in range(0,len(chem_comp)):
     print(i,li_sites_names[i])
     dfi=chem_comp.iloc[i][0]
     dfi=dfi.replace('', np.nan)
-    dfi['datetime']=pd.to_datetime(dfi['Time (UTC)'], dayfirst=True)
+    dfi['datetime']=pd.to_datetime(dfi['Time (UTC)'], dayfirst=True, format='mixed')
     dfi.drop(dfi['Time (UTC)'], errors='ignore')
     dfi.drop(dfi['Time (Local)'], errors='ignore')
     dfi.index = dfi['datetime']
@@ -87,7 +87,7 @@ nr_pm1=['OA', 'Sulphate', 'Nitrate', 'Ammonium', 'Chloride']
 for i in range(0,len(nr_dfs)):
     dfi = nr_dfs[i].copy(deep=True)
     dfi['datetime']=pd.to_datetime(dfi.index, dayfirst=True)
-    dfi_mean=dfi.mean()
+    dfi_mean=dfi.mean(numeric_only=True)
     if dfi_mean.lt(0.0).any() :
         dfi_mean = abs(dfi_mean)
     dfi['Month']= dfi['datetime'].dt.month
@@ -111,9 +111,9 @@ for i in range(0,len(chem_comp)):
     print(i, li_sites_names[i])
     df1 = pd.DataFrame(chem_comp.iloc[i][0])
     df1.reset_index(inplace=True, drop=True)
-    df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True)
+    df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True, format='mixed')
     chem_compound=pd.concat([chem_compound, df1[comp]], axis=1)
-    chem_dt = pd.concat([chem_dt, pd.to_datetime(df1['Time (Local)'], dayfirst=True)], axis=0)
+    chem_dt = pd.concat([chem_dt, pd.to_datetime(df1['Time (UTC)'], dayfirst=True, format='mixed')], axis=0)
     chem_compound_t=pd.concat([chem_compound_t, pd.to_numeric(df1[comp])], axis=0)
     df1.index=df1.datetime
     li_dfs.append(df1)
@@ -155,14 +155,14 @@ for i in range(0,len(chem_comp)):
     print(i, li_sites_names[i], li_site_names[i])
     df1=pd.DataFrame(chem_comp.iloc[i][0])
     df1.reset_index(inplace=True, drop=True)
-    df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True) 
+    df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True, format='mixed') 
     df1['date']=df1['datetime'].dt.date
     df1['Org'].astype(float)
     df1=df1.drop(columns=['Time (Local)', 'Time (UTC)', 'MSA', 'Seasalt', 'datetime'], axis=1, errors='ignore')
     df1d=df1.groupby(by=df1['date']).mean(numeric_only=True)
     df1d['datetime']=pd.to_datetime(df1d.index, dayfirst=True)
     df1d.columns=['Chl_'+li_sites_names[i],'NH4_'+li_sites_names[i], 'NO3_'+li_sites_names[i],'Org_'+li_sites_names[i], 'SO4_'+li_sites_names[i], 'datetime_'+li_sites_names[i] ]
-    nr=pd.DataFrame({li_sites_names[i]: df1d.drop('datetime', errors='ignore').sum(axis=1)})
+    nr=pd.DataFrame({li_sites_names[i]: df1d.drop('datetime', errors='ignore').sum(axis=1, numeric_only=True)})
     li_days.append(df1d) #List of the datetimes
     li_nr.append(nr)
 #%% Merging DFS
@@ -171,7 +171,7 @@ li_days[0]['datet'] = pd.to_datetime(li_days[0].index)
 dates = pd.merge(df,li_days[0], how='outer',left_on='date', right_on='datet', sort=True)
 for i in range (1,len(li_days)):
     li_days[i]['datet']= pd.to_datetime(li_days[i].index)
-    dates = pd.merge(dates,li_days[i], how='outer',left_on='date', right_on='datet', sort=True)
+    dates = pd.merge(dates,li_days[i], how='outer',left_on='date', right_on='datet', sort=True, suffixes=('_'+li_sites_names[i], '_y'))
 dates=dates.drop(dates.index[-1])
 dates.index=dates['date']
 # dates.plot(legend=False)
@@ -329,6 +329,7 @@ plt.title(comp, fontsize=15)
 axs.set_xlabel('Concentration ($μg·m^{-3}$)', fontsize=14)
 axs.set_ylabel('Frequency', fontsize=14)
 # colors=['darkorange', 'royalblue', 'green', 'sienna', 'darkcyan', 'hotpink', 'mediumpurple'])
+
 #%%
 fig, axs=plt.subplots(nrows=len(types), figsize=(7,9), sharex=True)
 for j in range(0,len(li_df_types)):
@@ -395,20 +396,51 @@ sup_pie=sup_daily.groupby('Type').mean()
 sup_pie=sup_pie.sort_values('Percentage superations', ascending=False)
 sup_pie.plot.pie(y='Percentage superations', ax=axs[1], legend=False,autopct='%2.0f%%', labels=None,pctdistance=0.7,fontsize=12, 
                  startangle=90, counterclock=False, ylabel='', colors=['darkorange', 'royalblue', 'green', 'sienna', 'darkcyan', 'hotpink', 'mediumpurple'])
-#%% By months and by years
+#%% By years and types of site.
 li_year=[]
 df_year=pd.DataFrame()
+day_count=pd.DataFrame()
+month_to_season_dct = {1: 'DJF', 2: 'DJF',3: 'MAM', 4: 'MAM', 5: 'MAM',6: 'JJA', 7: 'JJA', 8: 'JJA',9: 'SON', 10: 'SON', 11: 'SON',12: 'DJF'}
 df_year.index=range(2010, 2024)
+day_count.index=range(2010, 2024)
 for i in range(0, len(li_nr)):
     a=li_nr[i].copy(deep=True)
     a['dt']=li_days[i].loc[:,li_days[i].columns.str.startswith('datetime')]
     a['date']=pd.to_datetime(a['dt'], dayfirst=True)
     a['Year']=a['date'].dt.year    
+    a['Month'] = a['date'].dt.month
+    a['Season'] = [month_to_season_dct.get(t_stamp.month) for t_stamp in a.date]
     mask=a.iloc[:,0]>=limit_who_25_daily
     b = a.loc[mask]
     df_year[li_sites_names[i]]=b.groupby('Year').count()['dt']
+    day_count[li_sites_names[i]] = a.groupby('Year').count()['dt']
  
-df_year.plot(kind='bar', legend=False)
+    
+df_year=df_year.T
+day_count=day_count.T
+df_year['Type'], day_count['Type'] = li_sites_types, li_sites_types
+dft_year=df_year.groupby('Type').sum().T
+dayt_count=day_count.groupby('Type').sum().T
+dfplot = 100*dft_year / dayt_count
+dfplot.sort_values(by='Type', axis=1, ascending=False, inplace=True)
+colors_types=['royalblue', 'darkcyan', 'orange', 'green', 'saddlebrown', 'purple', 'hotpink']
+
+fig, axs =plt.subplots(figsize=(8,4))
+dfplot.plot(legend=True,color=colors_types, ax=axs, marker='o', zorder=3)
+axs.set_xlabel('Years', fontsize=12)
+axs.set_ylabel('Percentage of days with \nsuperations (%)', fontsize=12)
+axs.grid(axis='y', zorder=0)
+axs.grid(axis='x', zorder=0)
+
+#%%
+dfplot.plot(kind='bar', stacked=)
+
+
+
+
+
+
+
 #%% MAPPPPP
 li_nr_avg=[]
 for i in range(0,len(nr_dfs)):
@@ -539,5 +571,19 @@ for i in range(0,len(oa_sa)):
     oa_total = oai[[x for x in factors_names.loc[li_sites_names_oa[i]].tolist() if x is not None]].sum(axis=1).mean()
     axs.text(x=-0.24, y=-0.13, s='OA = '+str(oa_total.round(1))+'\n $μg·m^{-3}$', fontsize=12)
     plt.savefig(li_sites_names_oa[i]+'_OASA_means.png')
+#%% Transform into daily
+min_date = pd.date_range(start='01/01/2009', end = '31/12/2023', freq='D').strftime('%d/%m/%Y') #The complete time series
+li_days, li_oad=[], []
+for i in range(0,len(chem_comp)):
+    print(i, li_sites_names_oa[i])
+    df1=pd.DataFrame(oa_sa.iloc[i][0])
+    df1.reset_index(inplace=True, drop=True)
+    df1['date']=df1['datetime'].dt.date
+    # df1=df1.drop(columns=['Time (Local)', 'Time (UTC)', 'MSA', 'Seasalt', 'datetime'], axis=1, errors='ignore')
+    df1d=df1.groupby(by=df1['date']).mean(numeric_only=True)
+    df1d['datetime']=pd.to_datetime(df1d.index, dayfirst=True)
+    # df1d.columns=['Chl_'+li_sites_names[i],'NH4_'+li_sites_names[i], 'NO3_'+li_sites_names[i],'Org_'+li_sites_names[i], 'SO4_'+li_sites_names[i], 'datetime_'+li_sites_names[i] ]
+    # oad=pd.DataFrame({li_sites_names_oa[i]: df1d.drop('datetime', errors='ignore').sum(axis=1)})
+    li_days.append(df1d) #List of the datetimes
 
 
