@@ -484,7 +484,7 @@ axs.legend(loc=(1.01, 0.5))
 axs.set_ylabel('Percentage of days \nof superation (%)')
 axs.set_xlabel('Types of site')
 #%%Composition on superation days (NR-PM1)
-li_sup=[]
+count_sup, li_sup=[], []
 df_sup, df_sup_count=pd.DataFrame(), pd.DataFrame()
 for i in range(0, len(li_nr)):
     print(i, li_sites_names[i])
@@ -495,17 +495,63 @@ for i in range(0, len(li_nr)):
     b=a.groupby(a['date']).mean()
     mask =b['NR']>=limit_who_25_daily
     c = b.loc[mask].mean(axis=0, numeric_only=True)
+    d = b.loc[mask].count(axis=0, numeric_only=True)
+    c.drop('NR', inplace=True)
+    c.index=['Chl', 'NH4', 'NO3', 'OA', 'SO4']
     li_sup.append(c)
-df_sup=pd.DataFrame(li_sup)
-#%% Composition
-for i in df
-#%%
-    mask=a.iloc[:,0]>=limit_who_25_daily
-    b = a.loc[mask]
-    df_year[li_sites_names[i]]=b.groupby('Season').count()['dt']
-    day_count[li_sites_names[i]] = a.groupby('Season').count()['dt']
+    count_sup.append(100*d['NR']/len(b))
+df_sup = pd.DataFrame(li_sup)
+df_sup_count=pd.Series(count_sup)
+df_sup.index = li_sites_names
+df_sup = df_sup[['OA', 'SO4', 'NO3', 'NH4', 'Chl']]
 
+color_nr = ['green', 'red', 'blue', 'gold', 'fuchsia']
+fig, axs = plt.subplots(figsize=(8,4))
+df_sup.plot(kind='bar', stacked=True, ax=axs, color = color_nr, zorder=7, width=0.9)
+axs2=axs.twinx()
+df_sup_count.plot(ax=axs2, marker='D', lw=0, color='k',zorder=8, markersize=3)
+axs.legend(loc=(0.15, -0.5), ncols=5)
 
+axs.set_ylabel('Absolute Concentration \n $(μg·m^{-3})$', fontsize=12)
+axs2.set_ylabel('Percentage of days \nwith superation (%)', fontsize=12)
+axs.set_xlabel('Site', fontsize=12)
+fig.suptitle('Days with superation')
+axs2.set_ylim(-2,100)
+#%% Ordered by perc with superations
+color_nr = ['green', 'red', 'blue', 'gold', 'fuchsia']
+fig, axs = plt.subplots(figsize=(8,4))
+df_sup_count.index=li_sites_names
+df_sup['count']=df_sup_count
+df_sup=df_sup.sort_values(by='count')
+df_sup.plot(y=['OA', 'SO4', 'NO3', 'NH4', 'Chl'], kind='bar', stacked=True, ax=axs, color = color_nr, zorder=7, width=0.9)
+axs2=axs.twinx()
+df_sup['count'].plot(ax=axs2, marker='D', lw=0, color='k',zorder=8, markersize=3)
+axs.legend(loc=(0.15, -0.5), ncols=5)
+axs.set_ylabel('Absolute Concentration \n $(μg·m^{-3})$', fontsize=12)
+axs2.set_ylabel('Percentage of days \nwith superation (%)', fontsize=12)
+axs.set_xlabel('Site', fontsize=12)
+fig.suptitle('Days with superation')
+axs2.set_ylim(-2,100)
+#%% In relative terms
+fig, axs = plt.subplots(figsize=(8,4))
+nr=['OA', 'SO4', 'NO3', 'NH4', 'Chl']
+df_sup_count.index=li_sites_names
+df_sup['count']=df_sup_count
+df_sup=df_sup.sort_values(by='count')
+df_sup['sum']=df_sup[nr].sum(axis=1)
+df_sup_rel = pd.DataFrame({'OA':100*df_sup['OA']/df_sup['sum'], 'SO4':100*df_sup['SO4']/df_sup['sum'],
+                           'NO3':100*df_sup['NO3']/df_sup['sum'], 'NH4':100*df_sup['NH4']/df_sup['sum'], 
+                           'Chl':100*df_sup['Chl']/df_sup['sum']})
+df_sup_rel.plot(y=nr, kind='bar', stacked=True, ax=axs, color = color_nr, zorder=7, width=0.9)
+axs2=axs.twinx()
+df_sup['count'].plot(ax=axs2, marker='D', lw=0, color='k',zorder=8, markersize=3)
+axs.legend(loc=(0.15, -0.5), ncols=5)
+axs.set_ylabel('Absolute Concentration \n $(μg·m^{-3})$', fontsize=12)
+axs2.set_ylabel('Percentage of days \nwith superation (%)', fontsize=12)
+axs.set_xlabel('Site', fontsize=12)
+fig.suptitle('Days with superation')
+
+axs2.set_ylim(-2,100)
 #%% MAPPPPP
 li_nr_avg=[]
 for i in range(0,len(nr_dfs)):
@@ -539,7 +585,7 @@ mask_a=md['Type']=='A'
 md['NR2']=md['NR']*15
 
 md.loc[mask_ub].plot.scatter(x="Lon", y="Lat", s='NR2', alpha=0.5, c='royalblue', ax=axs,linewidths=2, zorder=4, label = 'Urban background')
-md.loc[mask_rb].plot.scatter(x="Lon", y="Lat", s='NR2', alpha=0.5, c='green', ax=axs,linewidths=2, zorder=6, label='Remote Background')
+md.loc[mask_rb].plot.scatter(x="Lon", y="Lat", s='NR2', alpha=0.5, c='green', ax=axs,linewidths=2, zorder=6, label='Regional Background')
 md.loc[mask_su].plot.scatter(x="Lon", y="Lat", s='NR2', alpha=0.5, c='darkorange', ax=axs,linewidths=2,zorder=5, label = 'Suburban'  )
 md.loc[mask_c].plot.scatter(x="Lon", y="Lat", s='NR2', alpha=0.5, c='purple', ax=axs,linewidths=2, zorder=7, label = 'Coastal' )
 md.loc[mask_m].plot.scatter(x="Lon", y="Lat", s='NR2', alpha=0.5, c='saddlebrown', ax=axs,linewidths=2, zorder=8, label = 'Mountain' )
