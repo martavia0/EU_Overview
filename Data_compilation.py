@@ -51,7 +51,12 @@ all_files=glob.glob(path_data+'*Composition.txt')
 li_site_names = [j[-29:-25] for j in all_files]
 chem_comp=pd.DataFrame()
 chem_comp['Chemical_composition']=[pd.read_csv(i, sep='\t', na_values='null', keep_default_na=True) for i in all_files]
-li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRP', 'DEM', 'DUB', 'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAD-CIE', 'MAG','MAQS', 'MAR-LCP', 'MEL', 'MH', 'MI', 'MSC', 'MSY', 'NOA', 'PD', 'PRG-SUCH','PUY', 'SIRTA',  'SPC', 'TAR','VIR', 'ZEP', 'ZUR'] 
+li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRE', 
+                  'CRP', 'DEM', 'DUB', 'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  
+                  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'LYO', 'MAD-CIE', 'MAG','MAQS', 'MAR-LCP', 
+                  'MEL', 'MET', 'MH', 'MI', 'MSC', 'MSY', 'NOA', 'PAR-GEN', 'PAR-BPE', 'PAR-HAL',
+                  'PD','POI', 'PRE', 'PRG-SUCH','PUY', 'REN', 'RUG',  'SIRTA', 'SPC',  'STR',
+                  'TAL','TAR','VIR', 'VLN', 'ZEP', 'ZUR'] 
 chem_comp.index = li_sites_names
 #%% We import metadatafiles
 os.chdir(path_folder)
@@ -121,9 +126,6 @@ chem_compound.columns=chem_comp.index
 chem_compound_t.columns=['All sites']#­metadata['Acronym']
 chem_dt.columns=['All times']
 
-#%% 
-for i in range(0,len(li_site_names)):
-    print(li_site_names[i], li_sites_names[i])
 #%%
 chem_dt['All_times'] = pd.to_datetime(chem_dt['All times'], dayfirst=True, utc=True)
 chem_compound_t['Hour'] = chem_dt['All_times'].dt.hour
@@ -134,7 +136,7 @@ non_urban=metadata['Acronym'].loc[mask_nonurban].to_list()
 chem_compound_2[non_urban]=np.nan
 #%%Plotting boxplots
 os.chdir(path_folder + "Preliminar Plots/Chemical Composition/")
-fig, axs=plt.subplots(figsize=(10,10),nrows=2, ncols=2)
+fig, axs=plt.subplots(figsize=(10,10),nrows=2, ncols=2, width_ratios=[1,2])
 chem_compound_t.boxplot(column = 'All sites', ax=axs[0,0], fontsize=12,boxprops=bp, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False)
 chem_compound.boxplot(ax=axs[0,1], boxprops=bp, fontsize=10, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False, rot=90)
 # chem_compound_2.boxplot(ax=axs[0,1], boxprops=bp_grey, fontsize=10, medianprops=mdp,meanprops=mp, whiskerprops=wp, showfliers=False, rot=90)
@@ -181,14 +183,7 @@ dates.index=dates['date']
 metadata.drop(36, axis=0)
 dates_plot=dates.loc[:, dates.columns.str.startswith('datetime')]
 colors=['grey', ]
-li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRP', 'DEM', 'DUB', 
-                  'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAD-CIE', 
-                  'MAG','MAQS', 'MAR-LCP', 'MEL', 'MH', 'MI', 'MSC', 'MSY', 'NOA', 'PD', 'PRG-SUCH','PUY', 'SIRTA',  
-                  'SPC', 'TAR','VIR', 'ZEP', 'ZUR'] 
 
-# for m, col in zip('xosd', df):
-#     df[col].plot(marker=m)
-# plt.legend()
 li_marker=[]
 li_color=[]
 metadata = metadata.sort_values('Acronym')
@@ -224,11 +219,11 @@ li_color.append('royalblue')
 li_marker.append('s')
 
 li_sites_names.reverse()
-
+# 
 for i in range(0,len(dates_plot.columns)):
     # print(dates_plot.columns[i])
-    dates_plot[dates_plot.columns[i]]=dates_plot[dates_plot.columns[i]]*41-(i)
-fig, axs = plt.subplots(figsize=(10, 11))
+    dates_plot[dates_plot.columns[i]]=dates_plot[dates_plot.columns[i]]*54-(i)
+fig, axs = plt.subplots(figsize=(8,12))
 for m, col, c in zip(li_marker, dates_plot.columns, li_color):
     dates_plot[col].plot(marker=m, lw=0, legend=False, ax=axs, color=c, grid=True)
 axs.set_yticks(range(0,len(dates_plot.columns)+1))
@@ -302,18 +297,6 @@ tr.plot(ax=axs[6], legend=False)
 tr.median(axis=1).plot(ax=axs[6], legend=False, c='k', lw=1.5)
 for i in range(0,len(types)):
     axs[i].set_ylabel(types[i])
-#%% Monthly year by types!
-li_df_types=[ub, rb, su, c, m, a, tr]
-fig, axs=plt.subplots(nrows=7, figsize=(12,10), sharex=True)
-for i in range(0,len(li_df_types)):
-    dft = li_df_types[i].copy(deep=True)
-    dft['date']=dft.index
-    dft['Month']=dft['date'].dt.month
-    dft['Year']=dft['date'].dt.year
-    dft.groupby(['Year', 'Month']).median().plot( legend=False,ax=axs[i])
-    axs[i].set_ylabel(types[i], fontsize=12)
-axs[0].set_ylim(0,15)
-fig.suptitle(comp, fontsize=14)
 
 
 #%%
@@ -331,23 +314,6 @@ axs.set_xlabel('Concentration ($μg·m^{-3}$)', fontsize=14)
 axs.set_ylabel('Frequency', fontsize=14)
 # colors=['darkorange', 'royalblue', 'green', 'sienna', 'darkcyan', 'hotpink', 'mediumpurple'])
 
-#%%
-fig, axs=plt.subplots(nrows=len(types), figsize=(7,9), sharex=True)
-for j in range(0,len(li_df_types)):
-    dft=li_df_types[j]
-    dft['date']=dft.index
-    dft['Year']=dft['date'].dt.year
-    df=pd.DataFrame()
-    for i in range(2011, 2024): 
-        a=dft.loc[ub['Year']==i,dft.columns.str.startswith(comp)]#.media n(axis=1)#. plot(ax=axs)#, color=rbw[i-2011], legend=True)
-        b=pd.concat([a[i] for i in a.columns])
-        df=pd.concat([df,b.reset_index()], axis=1)
-    df=df.drop('date', errors='ignore', axis=1)
-    df.columns=range(2011, 2024)
-    df.boxplot(showfliers=False, showmeans=True, boxprops=bp, fontsize=10, medianprops=mdp,meanprops=mp, whiskerprops=wp, rot=90, ax=axs[j])
-    axs[j].set_ylabel(types[j])
-axs[len(dft.columns)].set_xlabel('Years', fontsize=13)
-fig.suptitle(comp, fontsize=13)
 #%%
 '''     SUPERATIONS!!    '''
 
@@ -371,8 +337,7 @@ sup_daily['Type_int']=sup_daily['Type_int'].replace('UB',0).replace('RB', 1).rep
 
 
 colors=['royalblue','green', 'darkorange', 'mediumpurple', 'sienna', 'hotpink', 'darkcyan']
-# a=[colors[i] for i in sup_daily['Type_int']]
-fig, axs = plt.subplots(figsize=(8,8), ncols=2)
+fig, axs = plt.subplots(figsize=(8,10), ncols=2, width_ratios=[3,2])
 sup_daily=sup_daily.sort_values(by='Percentage superations')
 sup_daily['Percentage superations'].plot(kind='barh', ax=axs[0], color=[colors[i] for i in sup_daily['Type_int']], zorder=3)
 axs[0].set_ylabel('Percentage of WHO PM$_{2.5}$ daily thresholds superation', fontsize=13)
@@ -396,7 +361,45 @@ axs[0].legend(handles=legend_elements, loc = (1.05,0.752))#'upper right')
 sup_pie=sup_daily.groupby('Type').mean()
 sup_pie=sup_pie.sort_values('Percentage superations', ascending=False)
 sup_pie.plot.pie(y='Percentage superations', ax=axs[1], legend=False,autopct='%2.0f%%', labels=None,pctdistance=0.7,fontsize=12, 
-                 startangle=90, counterclock=False, ylabel='', colors=['darkorange', 'royalblue', 'green', 'sienna', 'darkcyan', 'hotpink', 'mediumpurple'])
+                 startangle=90, counterclock=False, ylabel='', colors=['darkorange', 'royalblue', 'green', 'mediumpurple', 'darkcyan','sienna','hotpink', ])
+
+#%%
+from matplotlib.gridspec import GridSpec
+
+fig = plt.figure(layout="constrained",  figsize=(10,10))
+
+gs = GridSpec(2, 2)
+ax1 = fig.add_subplot(gs[:, 0])
+ax2 = fig.add_subplot(gs[0, 1])
+ax3 = fig.add_subplot(gs[1:, -1])
+
+sup_daily['Percentage superations'].plot(kind='barh', ax=ax1, color=[colors[i] for i in sup_daily['Type_int']], zorder=3)
+ax1.set_ylabel('Percentage of WHO PM$_{2.5}$ daily thresholds superation', fontsize=13)
+ax1.set_xlim(0,100)
+ax1.grid(axis='x', zorder=0)
+ax1.set_title('NR-PM$_1$ concentration')
+
+legend_elements = [Line2D([0], [0], color='royalblue', label='Urban background', ),
+                   Line2D([0], [0], color='green', label='Regional background'), 
+                   Line2D([0], [0], color='darkorange', label='Suburban'), 
+                   Line2D([0], [0],  color='mediumpurple', label='Coastal'),
+                   Line2D([0], [0], color='sienna', label='Mountain'), 
+                   Line2D([0], [0], color='hotpink', label='Arctic'), 
+                   Line2D([0], [0], color='darkcyan', label='Traffic')]
+
+ax1.legend(handles=legend_elements, loc = (0.4,0.02))#'upper right')
+
+sup_pie=sup_daily.groupby('Type').mean()
+sup_pie=sup_pie.sort_values('Percentage superations', ascending=False)
+sup_pie.plot.pie(y='Percentage superations', ax=ax2, legend=False,autopct='%2.0f%%', labels=None,pctdistance=0.7,fontsize=15, 
+                 startangle=90, counterclock=False, ylabel='', colors=['darkorange', 'royalblue', 'green', 'mediumpurple', 'darkcyan','sienna','hotpink', ])
+sup_bp=sup_daily.sort_values(by = 'Type_int')
+
+boxplot = sup_bp.boxplot(column=['Percentage superations'], by='Type', ax=ax3, showmeans=True,
+                            boxprops=bp, medianprops=mdp, meanprops=mp, whiskerprops=wp) 
+ax3.set_title('')
+plt.suptitle('')
+plt.show()
 #%% By years and types of site.
 li_year=[]
 df_year=pd.DataFrame()
@@ -433,7 +436,7 @@ axs.set_ylabel('Percentage of days with \nsuperations (%)', fontsize=12)
 axs.grid(axis='y', zorder=0)
 axs.grid(axis='x', zorder=0)
 
-#%%
+#%% Per each site, proportion of each sesason per superation days
 li_year=[]
 df_year=pd.DataFrame()
 day_count=pd.DataFrame()
@@ -452,7 +455,7 @@ for i in range(0, len(li_nr)):
     df_year[li_sites_names[i]]=b.groupby('Season').count()['dt']
     day_count[li_sites_names[i]] = a.groupby('Season').count()['dt']
 
-fig, axs=plt.subplots(figsize=(4,8))
+fig, axs=plt.subplots(figsize=(4,9))
 df_plt=100*df_year /day_count
 df_plot=100*df_plt/df_plt.sum()
 df_plot=df_plot.T
@@ -464,7 +467,7 @@ axs.grid('y', zorder=2)
 axs.set_xlabel('Percentage of superations per season (%)')
 axs.set_ylabel('Site')
 
-axs.legend(loc=(-0.15,-0.15), ncol=4)
+axs.legend(loc=(-0.15,-0.08), ncol=4)
 #%% Average days per season with superation
 fig, axs=plt.subplots(figsize=(4,4))
 df_plot.mean().plot(kind='bar',  yerr=df_plot.std(), color='grey', ax=axs, zorder=2)
@@ -506,7 +509,7 @@ df_sup.index = li_sites_names
 df_sup = df_sup[['OA', 'SO4', 'NO3', 'NH4', 'Chl']]
 
 color_nr = ['green', 'red', 'blue', 'gold', 'fuchsia']
-fig, axs = plt.subplots(figsize=(8,4))
+fig, axs = plt.subplots(figsize=(10,4))
 df_sup.plot(kind='bar', stacked=True, ax=axs, color = color_nr, zorder=7, width=0.9)
 axs2=axs.twinx()
 df_sup_count.plot(ax=axs2, marker='D', lw=0, color='k',zorder=8, markersize=3)
@@ -519,7 +522,7 @@ fig.suptitle('Days with superation')
 axs2.set_ylim(-2,100)
 #%% Ordered by perc with superations
 color_nr = ['green', 'red', 'blue', 'gold', 'fuchsia']
-fig, axs = plt.subplots(figsize=(8,4))
+fig, axs = plt.subplots(figsize=(10,4))
 df_sup_count.index=li_sites_names
 df_sup['count']=df_sup_count
 df_sup=df_sup.sort_values(by='count')
@@ -533,7 +536,7 @@ axs.set_xlabel('Site', fontsize=12)
 fig.suptitle('Days with superation')
 axs2.set_ylim(-2,100)
 #%% In relative terms
-fig, axs = plt.subplots(figsize=(8,4))
+fig, axs = plt.subplots(figsize=(10,4))
 nr=['OA', 'SO4', 'NO3', 'NH4', 'Chl']
 df_sup_count.index=li_sites_names
 df_sup['count']=df_sup_count
@@ -647,9 +650,9 @@ os.chdir(os.path.join(et.io.HOME, 'earth-analytics', "data"))
 **************** SOURCE APPORTIONMENT *********************'''
 #%%
 os.chdir(path_data)
-hpb=pd.read_csv('HPB_PMF_Output_TS.txt', sep='\t')
+# hpb=pd.read_csv('HPB_PMF_Output_TS.txt', sep='\t')
 
-hpb['datetime']=pd.to_datetime(hpb['PMF Time (UTC)'], dayfirst=True)#, format="%d/m/%Y %H:%M")
+# hpb['datetime']=pd.to_datetime(hpb['PMF Time (UTC)'], dayfirst=True)#, format="%d/m/%Y %H:%M")
 #%% IMPORT ALL FILES
 os.chdir(path_data)
 all_files=glob.glob(path_data+'*Output_TS.txt')
@@ -659,36 +662,38 @@ li_site_names_oa_all = [j[-31:-12] for j in all_files]
 oa_sa=pd.DataFrame()
 oa_sa['OA_SA']=[pd.read_csv(i, sep='\t', na_values='null', keep_default_na=True) for i in all_files]
 li_sites_names_oa = ['ATOLL', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRP', 'DEM', 'DUB', 
-                     'GRA', 'HPB', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAG', 'MARLCP',
-                     'MEL','MI', 'PD','SIRTA',  'SMR', 'SPC', 'TAR','ZUR'] 
+                      'GRA', 'HPB', 'INO', 'IPR',  'KOS', 'KRK', 'LON-MR', 'LON-NK', 'MAG', 'MAR-LCP',
+                      'MEL','MI', 'PD', 'PRE', 'RUG', 'SIRTA',  'SMR', 'SPC', 'TAR','VLN', 'ZUR'] 
 oa_sa.index = li_sites_names_oa
+li_oasa=[]
 for i in range(0,len(oa_sa)):
     print(i, li_sites_names_oa[i])
     oai=oa_sa.loc[li_sites_names_oa[i]][0]
     oai['datetime'] = pd.to_datetime(oai['PMF Time (UTC)'], dayfirst=True)
-    oa_s.append(oai)
+    li_oasa.append(oai)
 #%% Factors adjustments
 
 factors_names = pd.DataFrame([dfi.columns[2:-1] for dfi in oa_sa['OA_SA']])
 factors_names.index=li_sites_names_oa
-colors_oasa=factors_names.replace({'HOA': 'grey', 'COA': 'mediumpurple', 'Amine-OA': 'skyblue', 
+colors_oasa=factors_names.replace({'HOA': 'grey', 'COA': 'mediumpurple', 'Amine-OA': 'skyblue',
                                    'BBOA': 'saddlebrown', 'LO-OOA': 'yellowgreen','MO-OOA':'darkgreen', 
                                    'OOA': 'green', 'Total OOA':'green', 'OOA_BB': 'olivedrab', 'OOA_BBaq':'olive',
-                                   'HOA-1': 'grey', 'HOA-2': 'dimgrey', 'CSOA': 'rosybrown', 'Wood': 'sienna', 
+                                   'HOA1': 'grey', 'HOA2': 'dimgrey', 'CSOA': 'rosybrown', 'Wood': 'sienna', 
                                    'Peat': 'sienna', 'Coal': 'sienna', 'POA': 'darkkhaki', 'CCOA': 'sandybrown',
-                                   '58-OA': 'hotpink', 'ShInd-OA': 'purple', 'seasalt':'darkcyan' })
+                                   '58-OA': 'hotpink', 'ShInd-OA': 'purple', 'seasalt':'darkcyan',
+                                   'BBOA1': 'saddlebrown', 'BBOA2': 'saddlebrown', 'LOA':'yellow'})
+colors_oasa.iloc[29] = pd.Series(['yellow', 'darkkhaki', 'saddlebrown', 'grey', 'darkgreen', 'yellowgreen', 'None'])
 #%% SA: INDIVIDUAL PLOTS I
 from matplotlib.patches import Rectangle
 os.chdir(path_individual_wdws)
 oa=[]
-
 for i in range(0,len(oa_sa)):
     print(i, li_sites_names_oa[i])
     oai=oa_sa.loc[li_sites_names_oa[i]][0]
     colours= [x for x in colors_oasa.loc[li_sites_names_oa[i]].tolist() if x is not None]
     oai_m=oai.iloc[:,2:-1].mean()
     fig, axs=plt.subplots(figsize=(5,5))
-    oai_m.plot.pie(autopct='%1.0f%%',colors=colours, fontsize=12)
+    oai_m.plot.pie(autopct='%1.0f%%',colors=colours, fontsize=12, startangle=90, counterclock=False)
     fig.suptitle(li_sites_names_oa[i])
     axs.add_patch(Rectangle((-0.26, -0.22),0.6, 0.4, facecolor='white', fill=True)) 
     oa_total = oai[[x for x in factors_names.loc[li_sites_names_oa[i]].tolist() if x is not None]].sum(axis=1).mean()
@@ -697,17 +702,216 @@ for i in range(0,len(oa_sa)):
 #%% Transform into daily
 min_date = pd.date_range(start='01/01/2009', end = '31/12/2023', freq='D').strftime('%d/%m/%Y') #The complete time series
 li_days, li_oad=[], []
-for i in range(0,len(chem_comp)):
+for i in range(0,len(oa_sa)):
     print(i, li_sites_names_oa[i])
-    df1=pd.DataFrame(oa_sa.iloc[i][0])
-    df1['datetime']=pd.to_datetime('PMF Time (UTC)')
-    df1.reset_index(inplace=True, drop=True)
+    df1=pd.DataFrame(li_oasa[i])
+    # df1.reset_index(inplace=True, drop=True)
     df1['date']=df1['datetime'].dt.date
     # df1=df1.drop(columns=['Time (Local)', 'Time (UTC)', 'MSA', 'Seasalt', 'datetime'], axis=1, errors='ignore')
     df1d=df1.groupby(by=df1['date']).mean(numeric_only=True)
     df1d['datetime']=pd.to_datetime(df1d.index, dayfirst=True)
-    # df1d.columns=['Chl_'+li_sites_names[i],'NH4_'+li_sites_names[i], 'NO3_'+li_sites_names[i],'Org_'+li_sites_names[i], 'SO4_'+li_sites_names[i], 'datetime_'+li_sites_names[i] ]
-    # oad=pd.DataFrame({li_sites_names_oa[i]: df1d.drop('datetime', errors='ignore').sum(axis=1)})
     li_days.append(df1d) #List of the datetimes
+#%% Importing Crit poll meas
+os.chdir(path_data)
+all_gm_files=glob.glob(path_data+'*meteo.txt')
+li_site_names = [j[-28:-22] for j in all_gm_files]
+print(li_site_names)
+gm=pd.DataFrame()
+gm['GM']=[pd.read_csv(i, sep='\t', na_values='null', keep_default_na=True) for i in all_gm_files]
+li_names_gm = ['ATOLL','BAQS', 'BCN', 'DEM','HEL', 'LON-MR','LON-NK', 
+            'MAD-CIE', 'MRS-LCP', 'NOA', 'PRG-SUCH', 'SIRTA', 'ZUR'] 
+gm.index = li_names_gm
+#%% Joining nrpm1, oasa, gases, meteo
+li_names = li_sites_names
+min_date = pd.date_range(start='01/01/2009', end = '31/12/2023', freq='H').strftime('%d/%m/%Y') #The complete time series
+li_all=[]
+for i in range(0,len(chem_comp)):
+    print(li_sites_names[i])
+    dfi=chem_comp.iloc[i][0].copy(deep=True)
+    dfi['datetime']=pd.to_datetime(dfi['Time (UTC)'], dayfirst=True, format='mixed', errors='coerce')
+    dfi['datehour']=dfi['datetime'].dt.round('H')
+    dfi=dfi.groupby('datehour').mean(numeric_only=True)
+    if (li_sites_names[i] in oa_sa.index)==True:
+        print('IN OASA!')
+        oai=oa_sa.loc[li_names[i]][0].copy(deep=True)
+        oai['datetime']=pd.to_datetime(oai['PMF Time (UTC)'] ,dayfirst=True, errors='raise')
+        oai['datehour']=oai['datetime'].dt.round('H')
+        oai=oai.groupby('datehour').mean(numeric_only=True)
+        dfi=pd.merge(left=dfi, right=oai, how='outer',left_on='datehour', right_on='datehour')
+    if (li_names[i] in gm.index) == True:
+        print('IN GM!')
+        gmi=pd.DataFrame()
+        gmi=gm.loc[li_names[i]][0].copy(deep=True)
+        gmi['datetime']=pd.to_datetime(gmi['TIME UTC, end'], dayfirst=True,errors='raise')
+        gmi['datehour']=gmi['datetime'].dt.round('H')
+        gmi=gmi.groupby('datehour').mean(numeric_only=True)
+        dfi=pd.merge(left=dfi, right=gmi, how='outer',left_on='datehour', right_on='datehour')
+    
+    # dfi.to_csv(li_names[i]+'_ALL.txt')
+    li_all.append(dfi)
+#%% Composition plot
+li_means=[]
+for i in range(0,len(li_all)):
+    print(li_names[i])
+    dfi = li_all[i]
+    dfi['PM1_sum']=dfi['Org']+dfi['SO4']+dfi['NO3']+dfi['NH4']+dfi['Chl']
+    if li_names[i] in gm.index:
+        print(li_names[i] + 'has BC')
+        dfi['PM1_sum'] = dfi['PM1_sum']+dfi['BC(ng/m3)']/1000.0
+        dfi['BC']=dfi['BC(ng/m3)']/1000.0
+    li_means.append(dfi.mean(numeric_only=True))
+means=pd.DataFrame(li_means)
 
+means_plot=pd.DataFrame()
+means_plot.index=['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC', 'HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA']
+for i in range(0,len(li_all)):
+    if li_names[i] in gm.index and li_names[i] not in oa_sa.index:
+        toadd=means[['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC']].iloc[i]
+        toadd.index=['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC']
+        toadd.name=li_names[i]
+        means_plot = pd.merge(means_plot,toadd, how='outer',left_index=True, right_index=True)
+    elif li_names[i] in oa_sa.index and li_names[i] not in gm.index:
+        toadd=means[['HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','ShInd-OA', 'CSOA', 'CCOA', 
+                     'Coal', 'Peat', 'Wood', 'HOA1', 'HOA2', 'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA',
+                     'SO4', 'NO3', 'NH4', 'Chl']].iloc[i]
+        toadd.index=['HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','ShInd-OA', 'CSOA', 'CCOA', 
+                     'Coal', 'Peat', 'Wood', 'HOA1', 'HOA2', 'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA',
+                     'SO4', 'NO3', 'NH4', 'Chl']
+        toadd.name=li_names[i]
+        means_plot = pd.merge(means_plot,toadd, how='outer',left_index=True, right_index=True)
+    elif li_names[i] in oa_sa.index and li_names[i] in gm.index:
+        toadd=means[['HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','ShInd-OA', 'CSOA', 'CCOA', 
+                     'Coal', 'Peat', 'Wood', 'HOA1', 'HOA2', 'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA',
+                     'SO4', 'NO3', 'NH4', 'Chl', 'BC']].iloc[i]
+        toadd.index=['HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','ShInd-OA', 'CSOA', 'CCOA', 
+                     'Coal', 'Peat', 'Wood', 'HOA1', 'HOA2', 'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA',
+                     'SO4', 'NO3', 'NH4', 'Chl', 'BC']
+        toadd.name=li_names[i]
+        means_plot = pd.merge(means_plot,toadd, how='outer',left_index=True, right_index=True)
+    else:
+        toadd=means[['Org', 'SO4', 'NO3', 'NH4', 'Chl']].iloc[i]
+        toadd.index=['Org', 'SO4', 'NO3', 'NH4', 'Chl']
+        toadd.name=li_names[i]
+        means_plot = pd.merge(means_plot,toadd, how='outer',left_index=True, right_index=True)        
+
+means_plot=means_plot.T
+means_plot = means_plot[[ 'SO4', 'NO3', 'NH4', 'Chl', 'BC', 'Org', 'HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','OOA','ShInd-OA', 'CSOA', 'CCOA', 
+             'Coal', 'Peat', 'Wood', 'HOA1', 'HOA2',  'OOA_BBaq', 'OOA_BB', 'Amine-OA',]]
+
+colors_all = ['red', 'blue', 'gold', 'fuchsia', 'black','green', 'grey', 'mediumorchid', 'saddlebrown', 'lightgreen', 'darkgreen','green',
+              'purple','gainsboro', 'hotpink', 'hotpink', 'tan', 'sandybrown', 'grey', 'grey', 'forestgreen', 'mediumseagreen', 'skyblue' ]
+
+fig, axs=plt.subplots(figsize=(10,5))
+means_plot.plot(kind='bar', stacked=True, color=colors_all, ax=axs, width=0.85)
+axs.set_xlabel('Sites', fontsize=13)
+axs.set_ylabel('Concentration ($μg·m^{-3}$)', fontsize=13)
+plt.legend(loc=(1.02,-0.24))
+#%% Same but in abs terms
+means_plot_mean = 100.0*means_plot.T/means_plot.sum(axis=1)
+
+fig, axs=plt.subplots(figsize=(10,5))
+means_plot_mean.T.plot(kind='bar', stacked=True, color=colors_all, ax=axs, width=0.85)
+axs.set_xlabel('Sites', fontsize=13)
+axs.set_ylabel('Absolute Concentration ($μg·m^{-3}$)', fontsize=13)
+axs.set_ylim(0,100)
+plt.legend(loc=(1.02,-0.24))
+
+#%% Boxplots per site
+factors=['HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA']
+dfs=[]
+fig, axs = plt.subplots(nrows=5, figsize=(8,12), constrained_layout = True)
+for j in range(0,len(factors)):
+    factor=factors[j]
+    li_factor=[]
+    li_factor_name=[]
+    for i in range(0,len(li_all)):
+        dfi = li_all[i]
+        dfi=dfi.reset_index()
+        if (factor in dfi.columns) and (dfi[factor].mean != np.nan):
+            li_factor.append(dfi[factor])
+            li_factor_name.append(li_names[i])
+    df_factor=pd.DataFrame(li_factor)
+    df_factor = df_factor.T
+    df_factor.columns=li_factor_name
+    
+    df_factor.boxplot(showfliers=False, ax=axs[j],showmeans=True, boxprops=bp, whiskerprops=wp, medianprops=mdp, meanprops=mp)
+    axs[j].set_xticks(range(0,len(li_factor_name)))
+    
+    axs[j].set_xticklabels(labels=['']+df_factor.columns[:-1].tolist(),  rotation=90)
+    axs[j].set_ylabel(factor, fontsize=12)
+#%% Composition per type of site
+means_plot_c = means_plot.copy(deep=True)
+means_plot_c['Type']=metadata['Type']
+means_plot_c['OOA']=means_plot_c['OOA'] + means_plot_c['OOA_BBaq']+means_plot_c['OOA_BB'] 
+means_plot_c['HOA']=means_plot_c['HOA1'] +means_plot_c['HOA2'] + means_plot_c['HOA']
+means_plot_c['CCOA']=means_plot_c['CCOA'] +means_plot_c['Coal']
+
+means_plot_c.drop(['OOA_BB', 'OOA_BBaq', 'Coal', 'HOA1', 'HOA2'], inplace=True, axis=1, errors='ignore')
+comp_bysite=means_plot_c.groupby('Type').mean(numeric_only=True)
+
+colors_all = ['red', 'blue', 'gold', 'fuchsia', 'black','limegreen', 'grey', 'mediumorchid', 'saddlebrown', 'lightgreen', 'darkgreen','green',
+              'purple','gainsboro', 'hotpink', 'tan', 'sandybrown', 'skyblue' ]
+
+comp_bysite=comp_bysite.iloc[::-1]
+fig, axs=plt.subplots(figsize=(5,5))
+comp_bysite.plot(kind='bar', stacked=True, color=colors_all, ax=axs)
+axs.set_ylabel('Absolute Concentration ($μg·m^{-3}$', fontsize=12)
+axs.set_xlabel('Type of site', fontsize=12)
+
+plt.legend(loc=(1.05, -0.0))
+#%% Time series of OA factors
+
+
+#%% INDIVIDUAL PLOTS I: Time series
+oa_dfs=[]
+os.chdir(path_individual_wdws)
+for i in range(0,len(chem_comp)):
+    if li_names[i] in oa_sa.index:
+        print(li_names[i])            
+        dfi=li_all[i].copy(deep=True)
+        dfi.drop('OA', inplace=True, axis=1)
+        dfi['datetime']=pd.to_datetime(dfi.index, dayfirst=True)
+        dfi.index = dfi['datetime']
+        del dfi['datetime']
+        factors=[col for col in dfi.columns if col.endswith('OA')]
+        dfi=dfi[factors]
+        dfi.columns=factors
+        fig, axs=plt.subplots(figsize=(10,10))
+        dfi.plot(subplots=True, ax=axs, title =li_names[i])
+        oa_dfs.append(dfi)
+        plt.savefig(li_sites_names[i]+'_factors_TS.png')
+    #%% INDIVIDUAL PLOTS II: Cycles
+for i in range(0,len(li_all)):
+    if li_names[i] in oa_sa.index:
+        dfi = pd.DataFrame(li_all[i]).copy(deep=True)
+        print(li_names[i])
+        factors=[col for col in dfi.columns if col.endswith('OA')]
+        factors = factors[:-1]
+        dfi.drop('OA', inplace=True, errors='ignore', axis=1)
+        dfi['datetime']=pd.to_datetime(dfi.index, dayfirst=True)
+        dfi['Month']= dfi['datetime'].dt.month
+        dfi['Year']=dfi['datetime'].dt.year
+        dfi['Hour']=dfi['datetime'].dt.hour
+        dfi_mean = dfi[factors].mean(numeric_only=True)
+        fig, axs=plt.subplots(ncols = 4, figsize=(12,3))
+        dfi_mean.plot.pie(ax=axs[0], legend=False, autopct='%1.0f%%',  title='Avg. conc.', startangle=90, labels=None, counterclock=True)
+        dfi.groupby('Year').mean(numeric_only=True).plot( y=factors, ax=axs[1],   marker = 'o')
+        dfi.groupby('Month').mean(numeric_only=True).plot(marker='o', y=factors,  legend=False, ax=axs[2], )
+        dfi.groupby('Hour').mean(numeric_only=True).plot( y=factors, ax=axs[3], legend=False)
+        plt.suptitle(li_sites_names[i])
+        plt.savefig(li_sites_names[i]+'Factor_means.png')
+#%% INDIVIDUAL PLOTS III: Intercomp OA
+interc = pd.DataFrame()
+os.chdir(path_individual_wdws)
+for i in range(0,len(li_all)): 
+    fig, axs=plt.subplots(figsize=(5,5))
+    dfi =li_all[i]
+    cols=[col for col in dfi.columns if col.endswith('OA')]
+    dfi['OA']=dfi[cols].sum(numeric_only=True, axis=1)
+    pl=dfi.plot(x='Org', y='OA', kind='scatter',  ax=axs, c=dfi.index, title=li_names[i])
+    axs.set_xlim(0,dfi['Org'].quantile(0.9))
+    axs.set_ylim(0,dfi['OA'].quantile(0.9))
+    axs.text(x=0,y=0, s='y = '+str(trt.slope(dfi['OA'], dfi['Org'])[0])+' · x + '+ 
+             str(trt.slope(dfi['OA'], dfi['Org'])[1])+'\nR$^2$ = '+str(trt.R2(dfi['OA'], dfi['Org'])))
+    plt.savefig(li_names[i]+'_OA_closure.png')
 
