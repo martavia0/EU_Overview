@@ -54,8 +54,8 @@ chem_comp['Chemical_composition']=[pd.read_csv(i, sep='\t', na_values='null', ke
 li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRE', 
                   'CRP', 'DEM', 'DUB', 'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  
                   'KOS', 'KRK', 'LON-MR', 'LON-NK', 'LYO', 'MAD-CIE', 'MAG','MAQS', 'MAR-LCP', 
-                  'MEL', 'MET', 'MH', 'MI', 'MSC', 'MSY', 'NOA', 'PAR-GEN', 'PAR-BPE', 'PAR-HAL',
-                  'PD','POI', 'PRE', 'PRG-SUCH','PUY', 'REN', 'RUG',  'SIRTA', 'SPC',  'STR',
+                  'MEL', 'MET', 'MH', 'MI', 'MSC', 'MSY', 'NOA', 'PAR-BPE', 'PAR-GEN', 'PAR-HAL',
+                  'PD','POI', 'PRE', 'PRG-SUCH','PUY', 'REN', 'RUG',  'SIRTA','SMR', 'SPC',  'STR',
                   'TAL','TAR','VIR', 'VLN', 'ZEP', 'ZUR'] 
 chem_comp.index = li_sites_names
 #%% We import metadatafiles
@@ -75,7 +75,6 @@ os.chdir(path_individual_wdws)
 for i in range(0,len(chem_comp)):
     print(i,li_sites_names[i])
     dfi=chem_comp.iloc[i][0]
-    dfi=dfi.replace('', np.nan)
     dfi['datetime']=pd.to_datetime(dfi['Time (UTC)'], dayfirst=True, format='mixed')
     dfi.drop(dfi['Time (UTC)'], errors='ignore')
     dfi.drop(dfi['Time (Local)'], errors='ignore')
@@ -83,7 +82,7 @@ for i in range(0,len(chem_comp)):
     del dfi['datetime']
     dfi=dfi[['Org', 'SO4', 'NO3', 'NH4', 'Chl']]
     dfi.columns=['OA', 'Sulphate', 'Nitrate', 'Ammonium', 'Chloride']
-    fig, axs=plt.subplots(figsize=(10,10))
+    fig, axs=plt.subplots(figsize=(8,12))
     dfi.plot(subplots=True, color=cl_nrpm1, ax=axs, title =li_sites_names[i])
     nr_dfs.append(dfi)
     plt.savefig(li_sites_names[i]+'_NRPM1.png')
@@ -226,8 +225,8 @@ for i in range(0,len(dates_plot.columns)):
 fig, axs = plt.subplots(figsize=(8,12))
 for m, col, c in zip(li_marker, dates_plot.columns, li_color):
     dates_plot[col].plot(marker=m, lw=0, legend=False, ax=axs, color=c, grid=True)
-axs.set_yticks(range(0,len(dates_plot.columns)+1))
-axs.set_yticklabels(['']+li_sites_names, fontsize=12)
+axs.set_yticks(range(0,len(dates_plot.columns)))
+axs.set_yticklabels(li_sites_names, fontsize=12)
 axs.set_xticklabels(range(2008,2025,2), fontsize=14, rotation=0)
 
 axs.set_xlabel('Time (years)', fontsize=14)
@@ -467,7 +466,7 @@ axs.grid('y', zorder=2)
 axs.set_xlabel('Percentage of superations per season (%)')
 axs.set_ylabel('Site')
 
-axs.legend(loc=(-0.15,-0.08), ncol=4)
+axs.legend(loc=(-0.15,-0.12), ncol=4)
 #%% Average days per season with superation
 fig, axs=plt.subplots(figsize=(4,4))
 df_plot.mean().plot(kind='bar',  yerr=df_plot.std(), color='grey', ax=axs, zorder=2)
@@ -650,9 +649,7 @@ os.chdir(os.path.join(et.io.HOME, 'earth-analytics', "data"))
 **************** SOURCE APPORTIONMENT *********************'''
 #%%
 os.chdir(path_data)
-# hpb=pd.read_csv('HPB_PMF_Output_TS.txt', sep='\t')
 
-# hpb['datetime']=pd.to_datetime(hpb['PMF Time (UTC)'], dayfirst=True)#, format="%d/m/%Y %H:%M")
 #%% IMPORT ALL FILES
 os.chdir(path_data)
 all_files=glob.glob(path_data+'*Output_TS.txt')
@@ -678,9 +675,9 @@ factors_names.index=li_sites_names_oa
 colors_oasa=factors_names.replace({'HOA': 'grey', 'COA': 'mediumpurple', 'Amine-OA': 'skyblue',
                                    'BBOA': 'saddlebrown', 'LO-OOA': 'yellowgreen','MO-OOA':'darkgreen', 
                                    'OOA': 'green', 'Total OOA':'green', 'OOA_BB': 'olivedrab', 'OOA_BBaq':'olive',
-                                   'HOA1': 'grey', 'HOA2': 'dimgrey', 'CSOA': 'rosybrown', 'Wood': 'sienna', 
-                                   'Peat': 'sienna', 'Coal': 'sienna', 'POA': 'darkkhaki', 'CCOA': 'sandybrown',
-                                   '58-OA': 'hotpink', 'ShInd-OA': 'purple', 'seasalt':'darkcyan',
+                                   'HOA1': 'grey', 'HOA2': 'dimgrey', 'CSOA': 'rosybrown', 'WoodOA': 'sienna', 
+                                   'PeatOA': 'sienna', 'CoalOA': 'sienna', 'POA': 'darkkhaki', 'CCOA': 'sandybrown',
+                                   '58-OA': 'hotpink', 'ShInd-OA': 'purple', 'seasaltOA':'darkcyan',
                                    'BBOA1': 'saddlebrown', 'BBOA2': 'saddlebrown', 'LOA':'yellow'})
 colors_oasa.iloc[29] = pd.Series(['yellow', 'darkkhaki', 'saddlebrown', 'grey', 'darkgreen', 'yellowgreen', 'None'])
 #%% SA: INDIVIDUAL PLOTS I
@@ -726,7 +723,7 @@ li_names = li_sites_names
 min_date = pd.date_range(start='01/01/2009', end = '31/12/2023', freq='H').strftime('%d/%m/%Y') #The complete time series
 li_all=[]
 for i in range(0,len(chem_comp)):
-    print(li_sites_names[i])
+    print(i, li_sites_names[i])
     dfi=chem_comp.iloc[i][0].copy(deep=True)
     dfi['datetime']=pd.to_datetime(dfi['Time (UTC)'], dayfirst=True, format='mixed', errors='coerce')
     dfi['datehour']=dfi['datetime'].dt.round('H')
@@ -753,7 +750,7 @@ for i in range(0,len(chem_comp)):
 li_means=[]
 for i in range(0,len(li_all)):
     print(li_names[i])
-    dfi = li_all[i]
+    dfi = li_all[i].copy(deep=True)
     dfi['PM1_sum']=dfi['Org']+dfi['SO4']+dfi['NO3']+dfi['NH4']+dfi['Chl']
     if li_names[i] in gm.index:
         print(li_names[i] + 'has BC')
@@ -772,19 +769,19 @@ for i in range(0,len(li_all)):
         means_plot = pd.merge(means_plot,toadd, how='outer',left_index=True, right_index=True)
     elif li_names[i] in oa_sa.index and li_names[i] not in gm.index:
         toadd=means[['HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','ShInd-OA', 'CSOA', 'CCOA', 
-                     'Coal', 'Peat', 'Wood', 'HOA1', 'HOA2', 'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA',
+                     'CoalOA', 'PeatOA', 'WoodOA', 'HOA1', 'HOA2', 'BBOA1', 'BBOA2', 'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA','seasaltOA', 
                      'SO4', 'NO3', 'NH4', 'Chl']].iloc[i]
         toadd.index=['HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','ShInd-OA', 'CSOA', 'CCOA', 
-                     'Coal', 'Peat', 'Wood', 'HOA1', 'HOA2', 'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA',
+                     'CoalOA', 'PeatOA', 'WoodOA', 'HOA1', 'HOA2', 'BBOA1', 'BBOA2', 'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA','seasaltOA', 
                      'SO4', 'NO3', 'NH4', 'Chl']
         toadd.name=li_names[i]
         means_plot = pd.merge(means_plot,toadd, how='outer',left_index=True, right_index=True)
     elif li_names[i] in oa_sa.index and li_names[i] in gm.index:
         toadd=means[['HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','ShInd-OA', 'CSOA', 'CCOA', 
-                     'Coal', 'Peat', 'Wood', 'HOA1', 'HOA2', 'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA',
+                     'CoalOA', 'PeatOA', 'WoodOA', 'HOA1', 'HOA2', 'BBOA1', 'BBOA2', 'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA','seasaltOA', 
                      'SO4', 'NO3', 'NH4', 'Chl', 'BC']].iloc[i]
         toadd.index=['HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','ShInd-OA', 'CSOA', 'CCOA', 
-                     'Coal', 'Peat', 'Wood', 'HOA1', 'HOA2', 'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA',
+                     'CoalOA', 'PeatOA', 'WoodOA', 'HOA1', 'HOA2', 'BBOA1', 'BBOA2', 'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA', 'seasaltOA', 
                      'SO4', 'NO3', 'NH4', 'Chl', 'BC']
         toadd.name=li_names[i]
         means_plot = pd.merge(means_plot,toadd, how='outer',left_index=True, right_index=True)
@@ -796,17 +793,17 @@ for i in range(0,len(li_all)):
 
 means_plot=means_plot.T
 means_plot = means_plot[[ 'SO4', 'NO3', 'NH4', 'Chl', 'BC', 'Org', 'HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','OOA','ShInd-OA', 'CSOA', 'CCOA', 
-             'Coal', 'Peat', 'Wood', 'HOA1', 'HOA2',  'OOA_BBaq', 'OOA_BB', 'Amine-OA',]]
+             'CoalOA', 'PeatOA', 'WoodOA', 'HOA1', 'HOA2', 'BBOA1', 'BBOA2',  'OOA_BBaq', 'OOA_BB', 'Amine-OA','seasaltOA']]
 
 colors_all = ['red', 'blue', 'gold', 'fuchsia', 'black','green', 'grey', 'mediumorchid', 'saddlebrown', 'lightgreen', 'darkgreen','green',
-              'purple','gainsboro', 'hotpink', 'hotpink', 'tan', 'sandybrown', 'grey', 'grey', 'forestgreen', 'mediumseagreen', 'skyblue' ]
+              'purple','gainsboro', 'hotpink', 'hotpink', 'tan', 'sandybrown', 'grey', 'grey','brown', 'brown', 'forestgreen', 'mediumseagreen', 'skyblue' , 'deepskyblue']
 
 fig, axs=plt.subplots(figsize=(10,5))
 means_plot.plot(kind='bar', stacked=True, color=colors_all, ax=axs, width=0.85)
 axs.set_xlabel('Sites', fontsize=13)
 axs.set_ylabel('Concentration ($μg·m^{-3}$)', fontsize=13)
 plt.legend(loc=(1.02,-0.24))
-#%% Same but in abs terms
+ #%% Same but in abs terms
 means_plot_mean = 100.0*means_plot.T/means_plot.sum(axis=1)
 
 fig, axs=plt.subplots(figsize=(10,5))
@@ -844,9 +841,11 @@ means_plot_c = means_plot.copy(deep=True)
 means_plot_c['Type']=metadata['Type']
 means_plot_c['OOA']=means_plot_c['OOA'] + means_plot_c['OOA_BBaq']+means_plot_c['OOA_BB'] 
 means_plot_c['HOA']=means_plot_c['HOA1'] +means_plot_c['HOA2'] + means_plot_c['HOA']
-means_plot_c['CCOA']=means_plot_c['CCOA'] +means_plot_c['Coal']
+means_plot_c['CCOA']=means_plot_c['CCOA'] +means_plot_c['CoalOA']
+means_plot_c['BBOA']=means_plot_c['BBOA1'] +means_plot_c['BBOA2']
 
-means_plot_c.drop(['OOA_BB', 'OOA_BBaq', 'Coal', 'HOA1', 'HOA2'], inplace=True, axis=1, errors='ignore')
+
+means_plot_c.drop(['OOA_BB', 'OOA_BBaq', 'Coal', 'HOA1', 'HOA2', 'BBOA1', 'BBOA2'], inplace=True, axis=1, errors='ignore')
 comp_bysite=means_plot_c.groupby('Type').mean(numeric_only=True)
 
 colors_all = ['red', 'blue', 'gold', 'fuchsia', 'black','limegreen', 'grey', 'mediumorchid', 'saddlebrown', 'lightgreen', 'darkgreen','green',
@@ -862,31 +861,32 @@ plt.legend(loc=(1.05, -0.0))
 #%% Time series of OA factors
 
 
-#%% INDIVIDUAL PLOTS I: Time series
+#%% INDIVIDUAL PLOTS II: Time series
 oa_dfs=[]
 os.chdir(path_individual_wdws)
 for i in range(0,len(chem_comp)):
     if li_names[i] in oa_sa.index:
         print(li_names[i])            
         dfi=li_all[i].copy(deep=True)
-        dfi.drop('OA', inplace=True, axis=1)
+        # dfi.drop('OA', inplace=True, axis=1)
         dfi['datetime']=pd.to_datetime(dfi.index, dayfirst=True)
         dfi.index = dfi['datetime']
         del dfi['datetime']
-        factors=[col for col in dfi.columns if col.endswith('OA')]
+        factors=[col for col in dfi.columns if (col.endswith('OA') or col.endswith('1') 
+                                                or col.endswith('2'))]
         dfi=dfi[factors]
         dfi.columns=factors
         fig, axs=plt.subplots(figsize=(10,10))
         dfi.plot(subplots=True, ax=axs, title =li_names[i])
         oa_dfs.append(dfi)
         plt.savefig(li_sites_names[i]+'_factors_TS.png')
-    #%% INDIVIDUAL PLOTS II: Cycles
+#%% INDIVIDUAL PLOTS III: Cycles
 for i in range(0,len(li_all)):
     if li_names[i] in oa_sa.index:
         dfi = pd.DataFrame(li_all[i]).copy(deep=True)
         print(li_names[i])
-        factors=[col for col in dfi.columns if col.endswith('OA')]
-        factors = factors[:-1]
+        factors=[col for col in dfi.columns if (col.endswith('OA') or col.endswith('1') or col.endswith('2'))]
+        # factors = factors[:-1]
         dfi.drop('OA', inplace=True, errors='ignore', axis=1)
         dfi['datetime']=pd.to_datetime(dfi.index, dayfirst=True)
         dfi['Month']= dfi['datetime'].dt.month
@@ -899,19 +899,44 @@ for i in range(0,len(li_all)):
         dfi.groupby('Month').mean(numeric_only=True).plot(marker='o', y=factors,  legend=False, ax=axs[2], )
         dfi.groupby('Hour').mean(numeric_only=True).plot( y=factors, ax=axs[3], legend=False)
         plt.suptitle(li_sites_names[i])
-        plt.savefig(li_sites_names[i]+'Factor_means.png')
+        plt.savefig(li_sites_names[i]+'_Factor_means.png')
 #%% INDIVIDUAL PLOTS III: Intercomp OA
 interc = pd.DataFrame()
 os.chdir(path_individual_wdws)
 for i in range(0,len(li_all)): 
-    fig, axs=plt.subplots(figsize=(5,5))
-    dfi =li_all[i]
-    cols=[col for col in dfi.columns if col.endswith('OA')]
-    dfi['OA']=dfi[cols].sum(numeric_only=True, axis=1)
-    pl=dfi.plot(x='Org', y='OA', kind='scatter',  ax=axs, c=dfi.index, title=li_names[i])
-    axs.set_xlim(0,dfi['Org'].quantile(0.9))
-    axs.set_ylim(0,dfi['OA'].quantile(0.9))
-    axs.text(x=0,y=0, s='y = '+str(trt.slope(dfi['OA'], dfi['Org'])[0])+' · x + '+ 
-             str(trt.slope(dfi['OA'], dfi['Org'])[1])+'\nR$^2$ = '+str(trt.R2(dfi['OA'], dfi['Org'])))
-    plt.savefig(li_names[i]+'_OA_closure.png')
+    if li_names[i] in oa_sa.index:
+        print(li_names[i])
+        fig, axs=plt.subplots(figsize=(5,5))
+        dfi =li_all[i].copy(deep=True)
+        dfi.drop('OA', inplace=True, axis=1, errors='ignore')
+        cols=[col for col in dfi.columns if (col.endswith('OA') or col.endswith('1') or col.endswith('2'))]
+        print(cols)
+        dfi['OA']=dfi[cols].sum(numeric_only=True, axis=1)
+        dfi['OA'].replace(0.0, np.nan, inplace=True)
+        pl=dfi.plot(x='Org', y='OA', kind='scatter',  ax=axs, c=dfi.index, title=li_names[i])
+        axs.set_xlim(0,dfi['Org'].quantile(0.99))
+        axs.set_ylim(0,dfi['Org'].quantile(0.99))
+        axs.text(x=0,y=0, s='y = '+str(trt.slope(dfi['OA'], dfi['Org'])[0])+' · x + '+ 
+                 str(trt.slope(dfi['OA'], dfi['Org'])[1])+'\nR$^2$ = '+str(trt.R2(dfi['OA'], dfi['Org'])))
+        plt.savefig(li_names[i]+'_OA_closure.png')
+#%% INDIVIDUAL PLOTS IV: Bins of NR
+percs_sites=[]
+for i in range(0, len(li_all)):
+    print(li_names[i])
+    dfi = li_all[i].copy(deep=True)
+    cols=[col for col in dfi.columns if (col.endswith('OA') or col.endswith('1') or col.endswith('2') or col.endswith('salt'))]
+    if cols==[]:
+        dfi['NR']=dfi[['Chl', 'NH4', 'NO3', 'Org', 'SO4']].sum(axis=1)
+    else: 
+        dfi['NR']=dfi[['Chl', 'NH4', 'NO3',  'SO4']+cols].sum(axis=1)
+    percs=[dfi['NR'].quantile(float(i)/10.0) for i in range(0,10,1)]
+    percs_means=[]
+    for j in range(0,len(percs)-1):
+        # print(j)
+        mask= (dfi['NR']>=percs[j]) & (dfi['NR']<percs[j+1])
+        percs_means.append(dfi.loc[mask].mean(numeric_only=True))
+    percs_sites.append(percs_means)
+df_percs=pd.DataFrame(percs_sites)
+        
+
 

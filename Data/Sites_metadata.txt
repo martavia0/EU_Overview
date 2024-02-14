@@ -1,55 +1,56 @@
-n	Site	Acronym	Type	Lat	Lon	Height	Country	Period_start	Period_end	NRPM1	PMF_Mats	PMF_outp_TS	w/ PR?	Type	Lens	Vaporiser	CE	TR	Start/Stop	Paper
-1	Lille	ATOLL	SU	50.61	3.14	70	France	11/10/2016	31/12/2020	Y	Y	Y	N	Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (2023)
-2	Birmingham	BAQS	UB	52.456	-1.929	143	United Kingdom	01/01/2019	31/12/2022	Y	Y	N		Q	PM2.5	Capture	CE1	1h 	Stop	None
-3	Barcelona	BCN	UB	41.3875	2.118056	80	Spain	19/05/2014	28/07/2023	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Via et al. (2021)
-4	Birkenes	BIR	RB	58.4	8.3	220	Norway	27/01/2016	25/09/2018	Y	N	Y	N	Q	PM1	Standard	??	4h	Stop	None
-5	Bologna	BO	UB	44.522222	11.338333	0	Italy	17/11/2011	14/07/2021	Y	Y	Y		AMS	PM1	Standard	CDCE	5'	Stop	Paglione et al. (2020)
-6	Nicosia	CAO-NIC	UB	35.038708	33.057764	352	Cyprus	07/12/2018	31/05/2019	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Christodolou et al. (2023)
-7	Capo Granitola	CGR	C	37.5753	12.6595	5	Italy	07/04/2016	25/04/2016	Y	Y	Y		AMS	PM1	Standard	CDCE	5'	Stop	None
-8	Mt. Cimone	CMN	M	44.2	10.7	2165	Italy	11/06/2012	09/07/2012	Y	Y	Y		AMS	PM1	Standard	CDCE	5'	Stop	Rinaldi et al. (2015)
-9	Creil	CRE	UB	49.26	2.47		France	01/01/2016	31/12/2021	Y	N	N	N	Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (2024; in prep)
-10	Carnsore Point	CRP	RB	52.1754283	-6.366016	9	Ireland	18/08/2016	15/12/2022	Y	N	Y		Q	PM1	Standard	CDCE	30'	Stop	Lin et al. 2021
-11	Athens-Demokritos	DEM	SU	37.995	23.816	270	Greece	10/11/2017	28/07/2021	Y	Y	Y		ToF	PM1	Standard	CDCE	30'	Stop	Zografou et al. (2022)
-12	Dublin - UCD	DUB	UB	53.3053	-6.051256	35	Ireland	05/08/2016	31/12/2022	Y	N	Y		Q	PM1	Standard	CDCE	30'	Stop	Lin et al. (2021)
-13	Finokalia	FKL	C	35.33779907	25.66939926	150	Greece	25/02/2009	26/03/2009	Y	N	N		Q-AMS	PM1	Standard	CDCE	30'	Stop	None
-14	Granada	GRA	UB	37.163889	-3.605	68	Spain	15/12/2015	16/02/2016	Y	N	Y		Q	PM1	Standard	CDCE	30'	Stop	None
-15	Helsinki	HEL	TR	nan	nan	nan	Finland	10/06/2015	31/12/2019	Y	N	N		Q	PM1	Standard	??	30'	Stop	None
-16	Hohenpeissenberg	HPB	RB	47.8	11	985	Germany	01/01/2014	31/12/2022	Y	N	N		Q	PM1	Standard	CE0.5	5'	Stop	None
-17	Hyltemossa	HTM	RB	56.09763	13.41897	115	Sweden	03/10/2017	18/05/2020	Y	N	N		ToF	PM1	Standard	CDCE	1h	Stop	None
-18	Magurele - Bucharest	INO	SU	44.412617	26.09188	93	Romania	01/01/2016	10/08/2022	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Draft
-19	Ispra-JRC	IPR	RB	45.8	8.6	223	Italy	01/03/2013	28/02/2014	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Bressi et al. (2016)
-20	Kosetice	KOS	RB	49.583333	15.083333	534	Czech Republic	08/01/2019	14/10/2019	Y	N	Y	N	c-ToF-AMS	PM1	Standard	CDCE	30'	Stop	None
-21	Krakow - AGH University	KRK	SU	50.08970467	19.890297	13	Poland	08/01/2018	10/04/2019	Y	Y	Y		Q	PM1	Standard	CE0.5	30'	Stop	Tobler et al. (2021)
-22	London - Marylebone Road	LONMR	TR	51.52	-0.154611	39	United Kingdom	01/08/2019	23/10/2020	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Draft
-23	London - North Kensington	LONNK	UB	51.521	-0.2135	27	United Kingdom	23/11/2015	22/02/2018	Y	Y	Y		Q	PM1	Standard	CE0.5	30'	Stop	Draft
-24	Lyon	LYO	UB	45.76	7.85		France	11/03/2015	31/12/2021	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)
-25	Madrid - CIEMAT	MAD	UB	40.456436	-3.725631	669	Spain	21/09/2019	31/12/2023	Y	N	N		Q	PM1	Standard	CE0.5	30'	Stop	
-26	Magadino	MAG	RB	46.2	8.9	203	Switzerland	28/08/2013	30/10/2014	Y	Y	Y		Q	PM1	Standard	Other	30'	Stop	Chen et al. (2021)
-27	Manchester	MAQS	UB	53.44417	-2.214444	43	United Kingdom	28/02/2020	04/04/2023	Y	N	N		Q	PM2.5	Capture	CE1	30'	Stop	None
-28	Marseille	MAR-LCP	UB	43.305233	5.394692	71	France	31/07/2017	30/12/2022	Y	Y	Y		ToF	PM1	Standard	CDCE	10'	Stop	Chazeau et al. (2021)
-29	Melpitz	MEL	RB	51.54	12.93	86	Germany	08/09/2016	31/08/2017	Y	N	Y	N	Q	PM1	Standard	CDCE	1h 	Stop	Poulain et al. (2020), Atabaksh et al. (2023)
-30	Metz	MET	UB	49.11	6.22		France	31/12/2021	31/12/2021	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)
-30	Mace Head	MH	RB	53.324967	-9.9029479	5	Ireland	08/01/2016	13/07/2018	Y	N	N		c-ToF-AMS	PM1	Standard	CDCE	10'	Stop	None
-31	Milano Pascal	MI	UB	45.478611	9.234444	118	Italy	03/02/2014	28/02/2014	Y	Y	Y		AMS	PM1	Standard	CDCE	5'	Stop	None
-32	Montsec	MSC	M	42.05	0.72	1570	Spain	14/07/2011	23/04/2012	Y	N	N	N	Q	PM1	Standard	CDCE	1h	Stop	Ripoll et al. (2015)
-33	Montseny	MSY	RB	41.779342	2.358033	720	Spain	18/08/2021	30/05/2022	Y	Y	N		ToF	PM1	Standart	CDCE	10'	Stop	None
-34	Athens -Thissio	NOA	UB	37.97344	23.718085	105	Greece	01/01/2017	01/12/2021	Y	Y	N		Q	PM1	Standard	CDCE	30'	Stop	None
-35	Paris - BPEst	PAR-BPE	TR				France	01/09/2021	31/12/2021	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)
-36	Paris - Gennevilliers	PAR-GEN	UB				France	21/01/2018	30/09/2017	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)
-37	Paris - Les Halles	PAR-HAL	UB				France	04/09/2019	20/05/2021	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)
-38	Padova Granze	PD	UB	45.3775	11.94	11	Italy	26/01/2014	28/02/2014	Y	N	Y		AMS	PM1	Standard	CDCE	30'	Stop	None
-39	Poitiers	POI	UB				France	13/11/2015	13/12/2021	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)
-40	Preila	PRE	C	55.8333	21.0666	5	Lithuania	13/12/2017	27/03/2018	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	under preparation (Minderyte et al 2024)
-41	Prague - Suchdol	PRG-SUCH	UB	50.1	14.4	277	Czech Republic	20/06/2012	15/05/2013	Y	Y	N		AMS	PM1	Standard	Other	30'	Stop	Kubelová et al. (2015)
-42	Puy de Dome	PUY	M	45.76667	2.95	1465	France	06/06/2019	30/12/2020	Y	N	N		ToF	PM1	Standard	CDCE	1h 	Stop	None
-43	Rennes	REN	UB	48.08965	-1.659111	45	France	14/02/2020	18/09/2021	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)
-44	Rūgšteliškis	RUG	RB	55.45	26.06666		Lithuania	12/05/2014	26/06/2019	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Masalaite A., Byčenkienė S., Pauraite J., Garbariene I., Haddad I. el, Bozzetti C., Jaffrezo J. L., Besombes J. L.,  Plauškaitė-Šukienė K., Garbaras A., Sapolaite J., Ezerinskis Z., Dudoitis V., Bariseviciute R., Ulevicius V., Prevot A. S. H.  and Remeikis V., “Seasonal observation and source apportionment of carbonaceous aerosol from forested rural site (Lithuania)”, Atmospheric Environment, (2022)
-45	Gif-sur-Yvette	SIRTA	SU	48.71	2.15	163	France	01/06/2011	26/12/2022	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Zhang et al. (2019)
-46	San Pietro Capofiume	SPC	RB	44.524444	11.524444	-	Italy	14/11/2011	09/12/2015	Y	N	Y		AMS	PM1	Standard	CE05	5'	Stop	Gilardoni et al. (2014)
-47	Strasbourg	STR	UB	48.572758	7.767755		France	14/02/2020	18/09/2021	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)
-48	Talace	TAL	UB				France	21/11/2025	01/01/2022	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)
-49	Tartu	TAR	UB	58.3706	26.7349	39	Estonia	01/09/2016	24/07/2017	Y	N	Y	N	Q	PM1	Standard	CDCE	1h 	Stop	None
-50	Vilnius	VLN	UB	54.643333	25.182778	162.3	Lithuania	10/10/2014	13/06/2017	Y	Y	Y	Y	Q	PM1	Standard	CDCE	30'	Stop	Pauraite J et al. „Effect of urban submicron particles on single scattering albedo: the case study of high pollution event“, Journal of Quantitative Spectroscopy and Radiative Transfer (2022) 
-51	Virohlahti	VIR	RB	60.5	27.7	7	Finland	15/06/2012	07/06/2013	Y	N	N		Q	PM1	Standard	??	30'	Stop	None
-52	Zeppelin Mountain	ZEP	A	-64.38595	-61.543667	474	Norway	01/01/2022	15/12/2022	Y	N	N		ToF	PM1	Standard	CDCE	1h	Stop	None
-53	Zurich - Kaserne	ZUR	UB	47.4	8.5	409	Switzerland	31/08/2016	11/07/2023	Y	Y	Y	Y	Q	PM1	Standard	CDCE	15'	Stop	Chen et al. (2022)
+n	Site	Acronym	Type	Lat	Lon	Height	Country	Period_start	Period_end	NRPM1	PMF_Mats	PMF_outp_TS	w/ PR?	Type	Lens	Vaporiser	CE	TR	Start/Stop	Paper	Notes
+1	Lille	ATOLL	SU	50.61	3.14	70	France	11/10/2016	31/12/2020	Y	Y	Y	N	Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (2023)	Output profiles are missing. 
+2	Birmingham	BAQS	UB	52.456	-1.929	143	United Kingdom	01/01/2019	31/12/2022	Y	Y	N		Q	PM2.5	Capture	CE1	1h 	Stop	None	
+3	Barcelona	BCN	UB	41.3875	2.118056	80	Spain	19/05/2014	28/07/2023	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Via et al. (2021)	
+4	Birkenes	BIR	RB	58.4	8.3	220	Norway	27/01/2016	25/09/2018	Y	N	Y	N	Q	PM1	Standard	??	4h	Stop	None	
+5	Bologna	BO	UB	44.522222	11.338333	0	Italy	17/11/2011	14/07/2021	Y	Y	Y		AMS	PM1	Standard	CDCE	5'	Stop	Paglione et al. (2020)	
+6	Nicosia	CAO-NIC	UB	35.038708	33.057764	352	Cyprus	07/12/2018	31/05/2019	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Christodolou et al. (2023)	Pikridas did something strange with PMF
+7	Capo Granitola	CGR	C	37.5753	12.6595	5	Italy	07/04/2016	25/04/2016	Y	Y	Y		AMS	PM1	Standard	CDCE	5'	Stop	None	
+8	Mt. Cimone	CMN	M	44.2	10.7	2165	Italy	11/06/2012	09/07/2012	Y	Y	Y		AMS	PM1	Standard	CDCE	5'	Stop	Rinaldi et al. (2015)	-
+9	Creil	CRE	UB	49.26	2.47		France	01/01/2016	31/12/2021	Y	N	N	N	Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (2024; in prep)	
+10	Carnsore Point	CRP	RB	52.1754283	-6.366016	9	Ireland	18/08/2016	15/12/2022	Y	N	Y		Q	PM1	Standard	CDCE	30'	Stop	Lin et al. 2021	Lacking the profiles
+11	Athens-Demokritos	DEM	SU	37.995	23.816	270	Greece	10/11/2017	28/07/2021	Y	Y	Y		ToF	PM1	Standard	CDCE	30'	Stop	Zografou et al. (2022)	
+12	Dublin - UCD	DUB	UB	53.3053	-6.051256	35	Ireland	05/08/2016	31/12/2022	Y	N	Y		Q	PM1	Standard	CDCE	30'	Stop	Lin et al. (2021)	
+13	Finokalia	FKL	C	35.33779907	25.66939926	150	Greece	25/02/2009	26/03/2009	Y	N	N		Q-AMS	PM1	Standard	CDCE	30'	Stop	None	
+14	Granada	GRA	UB	37.163889	-3.605	68	Spain	15/12/2015	16/02/2016	Y	N	Y		Q	PM1	Standard	CDCE	30'	Stop	None	
+15	Helsinki	HEL	TR	nan	nan	nan	Finland	10/06/2015	31/12/2019	Y	N	N		Q	PM1	Standard	??	30'	Stop	None	Missing coordinates
+16	Hohenpeissenberg	HPB	RB	47.8	11	985	Germany	01/01/2014	31/12/2022	Y	N	N		Q	PM1	Standard	CE0.5	5'	Stop	None	PMF
+17	Hyltemossa	HTM	RB	56.09763	13.41897	115	Sweden	03/10/2017	18/05/2020	Y	N	N		ToF	PM1	Standard	CDCE	1h	Stop	None	
+18	Magurele - Bucharest	INO	SU	44.412617	26.09188	93	Romania	01/01/2016	10/08/2022	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Draft	
+19	Ispra-JRC	IPR	RB	45.8	8.6	223	Italy	01/03/2013	28/02/2014	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Bressi et al. (2016)	Uncertainties are missing
+20	Kosetice	KOS	RB	49.583333	15.083333	534	Czech Republic	08/01/2019	14/10/2019	Y	N	Y	N	c-ToF-AMS	PM1	Standard	CDCE	30'	Stop	None	
+21	Krakow - AGH University	KRK	SU	50.08970467	19.890297	13	Poland	08/01/2018	10/04/2019	Y	Y	Y		Q	PM1	Standard	CE0.5	30'	Stop	Tobler et al. (2021)	
+22	London - Marylebone Road	LONMR	TR	51.52	-0.154611	39	United Kingdom	01/08/2019	23/10/2020	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Draft	
+23	London - North Kensington	LONNK	UB	51.521	-0.2135	27	United Kingdom	23/11/2015	22/02/2018	Y	Y	Y		Q	PM1	Standard	CE0.5	30'	Stop	Draft	
+24	Lyon	LYO	UB	45.76	7.85		France	11/03/2015	31/12/2021	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)	
+25	Madrid - CIEMAT	MAD	UB	40.456436	-3.725631	669	Spain	21/09/2019	31/12/2023	Y	N	N		Q	PM1	Standard	CE0.5	30'	Stop		
+26	Magadino	MAG	RB	46.2	8.9	203	Switzerland	28/08/2013	30/10/2014	Y	Y	Y		Q	PM1	Standard	Other	30'	Stop	Chen et al. (2021)	
+27	Manchester	MAQS	UB	53.44417	-2.214444	43	United Kingdom	28/02/2020	04/04/2023	Y	N	N		Q	PM2.5	Capture	CE1	30'	Stop	None	
+28	Marseille	MAR-LCP	UB	43.305233	5.394692	71	France	31/07/2017	30/12/2022	Y	Y	Y		ToF	PM1	Standard	CDCE	10'	Stop	Chazeau et al. (2021)	
+29	Melpitz	MEL	RB	51.54	12.93	86	Germany	08/09/2016	31/08/2017	Y	N	Y	N	Q	PM1	Standard	CDCE	1h 	Stop	Poulain et al. (2020), Atabaksh et al. (2023)	
+30	Metz	MET	UB	49.11	6.22		France	31/12/2021	31/12/2021	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)	
+30	Mace Head	MH	RB	53.324967	-9.9029479	5	Ireland	08/01/2016	13/07/2018	Y	N	N		c-ToF-AMS	PM1	Standard	CDCE	10'	Stop	None	
+31	Milano Pascal	MI	UB	45.478611	9.234444	118	Italy	03/02/2014	28/02/2014	Y	Y	Y		AMS	PM1	Standard	CDCE	5'	Stop	None	
+32	Montsec	MSC	M	42.05	0.72	1570	Spain	14/07/2011	23/04/2012	Y	N	N	N	Q	PM1	Standard	CDCE	1h	Stop	Ripoll et al. (2015)	
+33	Montseny	MSY	RB	41.779342	2.358033	720	Spain	18/08/2021	30/05/2022	Y	Y	N		ToF	PM1	Standart	CDCE	10'	Stop	None	
+34	Athens -Thissio	NOA	UB	37.97344	23.718085	105	Greece	01/01/2017	01/12/2021	Y	Y	N		Q	PM1	Standard	CDCE	30'	Stop	None	
+35	Paris - BPEst	PAR-BPE	TR	48.838574	2.412713	48	France	01/09/2021	31/12/2021	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)	
+36	Paris - Gennevilliers	PAR-GEN	UB				France	21/01/2018	30/09/2017	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)	
+37	Paris - Les Halles	PAR-HAL	UB				France	04/09/2019	20/05/2021	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)	
+38	Padova Granze	PD	UB	45.3775	11.94	11	Italy	26/01/2014	28/02/2014	Y	N	Y		AMS	PM1	Standard	CDCE	30'	Stop	None	PMF Mats are missing. 
+39	Poitiers	POI	UB	46.59111	0.340278	71	France	13/11/2015	13/12/2021	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)	
+40	Preila	PRE	C	55.8333	21.0666	5	Lithuania	13/12/2017	27/03/2018	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	under preparation (Minderyte et al 2024)	
+41	Prague - Suchdol	PRG-SUCH	UB	50.1	14.4	277	Czech Republic	20/06/2012	15/05/2013	Y	Y	N		AMS	PM1	Standard	Other	30'	Stop	Kubelová et al. (2015)	
+42	Puy de Dome	PUY	M	45.76667	2.95	1465	France	06/06/2019	30/12/2020	Y	N	N		ToF	PM1	Standard	CDCE	1h 	Stop	None	
+43	Rennes	REN	UB	48.08965	-1.659111	45	France	14/02/2020	18/09/2021	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)	
+44	Rūgšteliškis	RUG	RB	55.45	26.06666		Lithuania	12/05/2014	26/06/2019	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Masalaite A., Byčenkienė S., Pauraite J., Garbariene I., Haddad I. el, Bozzetti C., Jaffrezo J. L., Besombes J. L.,  Plauškaitė-Šukienė K., Garbaras A., Sapolaite J., Ezerinskis Z., Dudoitis V., Bariseviciute R., Ulevicius V., Prevot A. S. H.  and Remeikis V., “Seasonal observation and source apportionment of carbonaceous aerosol from forested rural site (Lithuania)”, Atmospheric Environment, (2022)	
+45	Gif-sur-Yvette	SIRTA	SU	48.71	2.15	163	France	01/06/2011	26/12/2022	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Zhang et al. (2019)	
+46	Hyytiala	SMR	RB	61.85	24.28	181	Finland	01/01/2012	18/09/2019	Y	Y	Y		Q	PM1	Standard	CDCE	1h	Stop	Heikkinen et al. (2020)	
+47	San Pietro Capofiume	SPC	RB	44.524444	11.524444	-	Italy	14/11/2011	09/12/2015	Y	N	Y		AMS	PM1	Standard	CE05	5'	Stop	Gilardoni et al. (2014)	
+48	Strasbourg	STR	UB	48.57279	7.7529972	140	France	14/02/2020	18/09/2021	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)	
+49	Talace	TAL	UB				France	21/11/2025	01/01/2022	Y	N	N		Q	PM1	Standard	CDCE	30'	Stop	Chebaicheb et al. (in prep.)	
+50	Tartu	TAR	UB	58.3706	26.7349	39	Estonia	01/09/2016	24/07/2017	Y	N	Y	N	Q	PM1	Standard	CDCE	1h 	Stop	None	
+51	Vilnius	VLN	UB	54.643333	25.182778	162.3	Lithuania	10/10/2014	13/06/2017	Y	Y	Y	Y	Q	PM1	Standard	CDCE	30'	Stop	Pauraite J et al. „Effect of urban submicron particles on single scattering albedo: the case study of high pollution event“, Journal of Quantitative Spectroscopy and Radiative Transfer (2022) 	
+52	Virohlahti	VIR	RB	60.5	27.7	7	Finland	15/06/2012	07/06/2013	Y	N	N		Q	PM1	Standard	??	30'	Stop	None	
+53	Zeppelin Mountain	ZEP	A	-64.38595	-61.543667	474	Norway	01/01/2022	15/12/2022	Y	N	N		ToF	PM1	Standard	CDCE	1h	Stop	None	
+54	Zurich - Kaserne	ZUR	UB	47.4	8.5	409	Switzerland	31/08/2016	11/07/2023	Y	Y	Y	Y	Q	PM1	Standard	CDCE	15'	Stop	Chen et al. (2022)	
