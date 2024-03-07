@@ -13,7 +13,7 @@ n	Site	Acronym	Type	Lat	Lon	Height	Country	Period_start	Period_end	NRPM1	PMF_Mat
 12	Dublin - UCD	DUB	UB	53.3053	-6.051256	35	Ireland	05/08/2016	31/12/2022	Y	N	Y		Q	PM1	Standard	CDCE	30'	Stop	Lin et al. (2021)	
 13	Finokalia	FKL	C	35.33779907	25.66939926	150	Greece	25/02/2009	26/03/2009	Y	N	N		Q-AMS	PM1	Standard	CDCE	30'	Stop	None	
 14	Granada	GRA	UB	37.163889	-3.605	68	Spain	15/12/2015	16/02/2016	Y	N	Y		Q	PM1	Standard	CDCE	30'	Stop	None	
-15	Helsinki	HEL	TR	nan	nan	nan	Finland	10/06/2015	31/12/2019	Y	N	N		Q	PM1	Standard	??	30'	Stop	None	Missing coordinates
+15	Helsinki	HEL	TR	60.1963	24.9522	25	Finland	10/06/2015	31/12/2019	Y	N	N		Q	PM1	Standard	??	30'	Stop	None	Missing coordinates
 16	Hohenpeissenberg	HPB	RB	47.8	11	985	Germany	01/01/2014	31/12/2022	Y	N	N		Q	PM1	Standard	CE0.5	5'	Stop	None	PMF
 17	Hyltemossa	HTM	RB	56.09763	13.41897	115	Sweden	03/10/2017	18/05/2020	Y	N	N		ToF	PM1	Standard	CDCE	1h	Stop	None	
 18	Magurele - Bucharest	INO	SU	44.412617	26.09188	93	Romania	01/01/2016	10/08/2022	Y	Y	Y		Q	PM1	Standard	CDCE	30'	Stop	Draft	

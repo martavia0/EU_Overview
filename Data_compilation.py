@@ -921,22 +921,47 @@ for i in range(0,len(li_all)):
         plt.savefig(li_names[i]+'_OA_closure.png')
 #%% INDIVIDUAL PLOTS IV: Bins of NR
 percs_sites=[]
+os.chdir(path_individual_wdws)
+li_percs=[]
+df_percs=pd.DataFrame()
 for i in range(0, len(li_all)):
-    print(li_names[i])
     dfi = li_all[i].copy(deep=True)
     cols=[col for col in dfi.columns if (col.endswith('OA') or col.endswith('1') or col.endswith('2') or col.endswith('salt'))]
     if cols==[]:
-        dfi['NR']=dfi[['Chl', 'NH4', 'NO3', 'Org', 'SO4']].sum(axis=1)
+        columns=[ 'Org', 'SO4','NO3', 'NH4',  'Chl',]
+        dfi['NR']=dfi[columns].sum(axis=1)
     else: 
-        dfi['NR']=dfi[['Chl', 'NH4', 'NO3',  'SO4']+cols].sum(axis=1)
-    percs=[dfi['NR'].quantile(float(i)/10.0) for i in range(0,10,1)]
+        columns = ['SO4','NO3', 'NH4', 'Chl']+cols
+        dfi['NR']=abs(dfi[columns].sum(axis=1))
+    percs=[dfi['NR'].quantile(float(l)/10.0).round(2) for l in range(0,11,1)]
+    li_percs.append(percs)
     percs_means=[]
     for j in range(0,len(percs)-1):
-        # print(j)
         mask= (dfi['NR']>=percs[j]) & (dfi['NR']<percs[j+1])
-        percs_means.append(dfi.loc[mask].mean(numeric_only=True))
-    percs_sites.append(percs_means)
-df_percs=pd.DataFrame(percs_sites)
-        
+        dfj = pd.Series(dfi[columns].loc[mask].mean(numeric_only=True))
+        percs_means.append(pd.Series(dfj))
+        dfpm=pd.DataFrame(percs_means)
+    percs_sites.append(dfpm)
+# Plotting
+colors_oasa.mask(colors_oasa.astype(object).eq('None')).dropna()
+for k in range(0,len(percs_sites)):
+    fig, axs=plt.subplots(figsize=(6,4))
+    print(li_names[k])
+    if (percs_sites[k] < 0).any().any() ==True:
+        percs_sites[k][percs_sites[k] < 0] = 0
+    if li_names[k] not in oa_sa.index:
+        colors= color_nr
+    else:
+        ncol=len(li_oasa[li_sites_names_oa.index(li_names[k])].columns)-3
+        colors = color_nr[1:] + colors_oasa.loc[li_names[k]].tolist()[:ncol]
+    df_plot=100.00*percs_sites[k].div(percs_sites[k].sum(axis=1), axis=0)
 
+    df_plot.plot(kind='bar', stacked=True, ax=axs, color=colors, title=li_names[k], legend=False)    
+    axs.set_xticks(range(0,11))
+    axs.set_xticklabels(li_percs[k])
+    axs.set_xlabel('Bins of PM1 concentrations')
+    axs.set_ylabel('Relative concentration (%)')
+    axs.legend(loc=(1.01, 0.3))
+    plt.savefig(li_names[k]+'_percNR.png',  bbox_inches='tight')
 
+#%%
