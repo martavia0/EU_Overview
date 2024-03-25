@@ -15,24 +15,34 @@ import pandas as pd
 from scipy.stats import linregress
 from scipy import stats
 os.chdir(path_py)
-from Treatment import *
-trt = Basics(5)
-#%% paths definition
-path_py_wdws ="C:/Users/maria/Documents/Marta Via/1. PhD/F. Scripts/Python Scripts"
+# from Treatment import *
+# trt = Basics(5)
+# %% paths definition
+path_py_wdws ="C:/Users/maria/Documents/Marta Via/1. PhD/F. Scripts/Python Scripts/"
+path_py_mac ="/Users/martaviagonzalez/Documents/GitHub/EU_Overview/"
+
 path_data_wdws="C:/Users/maria/Documents/Marta Via/1. PhD/A. Data/Overview/Selected/"
+path_data_mac="/Users/martaviagonzalez/Documents/Documents - MacBook Pro de MVIA/Work/IDAEA-CSIC/Overview/Selected/"
+
 path_individual_wdws="C:/Users/maria/Documents/Marta Via/1. PhD/A. Data/Overview/Selected_plots/"
+path_individual_mac="/Users/martaviagonzalez/Documents/Documents - MacBook Pro de MVIA/Work/IDAEA-CSIC/Overview/Selected_plots/"
+
 path_folder_wdws = "C:/Users/maria/Documents/GitHub/EU_Overview/Data/"
+path_folder_mac = "/Users/martaviagonzalez/Documents/GitHub/EU_Overview/"
 #
-mac_or_wdws = 'wdws' #Introduce OS here
+mac_or_wdws = 'mac' #Introduce OS here
 #
 if mac_or_wdws=='mac':
     path_py = path_py_mac
     path_data = path_data_mac
     path_folder = path_folder_mac
+    path_individual=path_individual_mac
 else:
     path_py = path_py_wdws 
     path_data = path_data_wdws 
     path_folder = path_folder_wdws
+    path_individual=path_individual_wdws
+
 #%% Colors
 nr_colors=['green', 'red', 'blue', 'gold', 'fuchsia']
 #%% Boxprops
@@ -47,12 +57,19 @@ all_files=glob.glob(path_data+'*Composition.txt')
 li_site_names = [j[-29:-25] for j in all_files]
 chem_comp=pd.DataFrame()
 chem_comp['Chemical_composition']=[pd.read_csv(i, sep='\t', na_values='null', keep_default_na=True) for i in all_files]
-li_names = ['ATOLL', 'BAQS', 'BCN', 'BO', 'CAO-NIC', 'CRE', 'DEM', 'DUB', 'GRA','HEL','HPB', 'INO','KRK', 
-            'LON-MR', 'LON-NK', 'LYO', 'MAD-CIE', 'MAQS', 'MAR-LCP', 'MET', 'MI', 'NOA', 'PAR-GEN', 'PAR-BPE','PAR-HAL',
-            'PD', 'POI', 'PRG-SUCH', 'REN', 'SIRTA','STR', 'TAL', 'TAR','VLN', 'ZUR'] 
+li_names = ['PAR-BPE', 'HPB','MAR-LCP', 'MI', 'CAO-NIC','LYO', 'SIRTA', 'HEL', 'LON-MR', 
+            'BAQS', 'BCN', 'TAR','GRA','PRG-SUCH', 'DEM','MAQS', 'NOA', 'PAR-HAL', 'INO', 
+            'MAD-CIE', 'DUB', 'POI', 'KRK', 'ZUR', 'PD', 'ATOLL', 'STR','TAL','REN', 'CRE', 
+            'LON-NK', 'MET', 'VLN', 'PAR-GEN', 'BO']
 chem_comp.index = li_names
+li_names_good = ['ATOLL', 'BAQS', 'BCN', 'BO', 'CAO-NIC', 'CRE', 'DEM', 'DUB', 'GRA','HEL',
+                 'HPB', 'INO','KRK', 'LON-MR', 'LON-NK', 'LYO', 'MAD-CIE', 'MAQS', 'MAR-LCP', 
+                 'MET', 'MI', 'NOA', 'PAR-GEN', 'PAR-BPE','PAR-HAL', 'PD', 'POI', 'PRG-SUCH', 
+                 'REN', 'SIRTA','STR', 'TAL', 'TAR','VLN', 'ZUR'] 
+chem_comp=chem_comp.reindex(li_names_good)
+li_names=li_names_good
 #%% We import metadatafiles
-os.chdir(path_folder)
+os.chdir(path_folder+'/Data/')
 metadata = pd.read_csv("Sites_metadata_selected.txt", sep='\t')
 metadata=metadata.sort_values('Acronym')
 
@@ -63,7 +80,7 @@ for i in range(0,len(chem_comp)):
     print(i, li_names[i])
     df1=pd.DataFrame(chem_comp.iloc[i][0])
     df1.reset_index(inplace=True, drop=True)
-    df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True, format='mixed') 
+    df1['datetime']=pd.to_datetime(df1['Time (UTC)'], dayfirst=True)#, format='mixed') 
     df1['date']=df1['datetime'].dt.date
     df1['Org'].astype(float)
     df1=df1.drop(columns=['Time (Local)', 'Time (UTC)', 'MSA', 'Seasalt', 'datetime'], axis=1, errors='ignore')
@@ -151,7 +168,7 @@ for i in range(0,len(chem_comp)):
     print(li_names[i])
     dfi = pd.DataFrame(chem_comp.iloc[i][0])
     dfi.drop('Time (Local)', inplace=True, errors='ignore')
-    dfi['datetime']=pd.to_datetime(dfi['Time (UTC)'], dayfirst=True, format='mixed')
+    dfi['datetime']=pd.to_datetime(dfi['Time (UTC)'], dayfirst=True)#, format='mixed')
     li_dfi.append(dfi)    
 #%% Mean site composition
 means= pd.DataFrame([i.mean(numeric_only=True) for i in li_dfi])
@@ -208,28 +225,36 @@ all_sa_files=glob.glob(path_data+'*Output_TS.txt')
 li_site_names = [j[-23:-18] for j in all_sa_files]
 oasa=pd.DataFrame()
 oasa['SA']=[pd.read_csv(i, sep='\t', na_values='null', keep_default_na=True, infer_datetime_format=True) for i in all_sa_files]
+li_names_sa_wrong=['TAR','MI', 'MAR-LCP', 'ZUR', 'VLN', 'CAO-NIC','PD', 'GRA', 'DEM','BO', 
+                   'DUB', 'KRK', 'HPB', 'LON-NK', 'BCN', 'ATOLL', 'INO', 'LON-MR', 'SIRTA'] 
+oasa.index = li_names_sa_wrong
 li_names_sa = ['ATOLL','BCN', 'BO', 'CAO-NIC', 'DEM', 'DUB','GRA', 'HPB', 'INO','KRK', 
                'LON-MR', 'LON-NK', 'MAR-LCP', 'MI', 'PD', 'SIRTA', 'TAR', 'VLN', 'ZUR'] 
-oasa.index = li_names_sa
+oasa=oasa.reindex(li_names_sa)
 #%% Importing Crit poll meas
 os.chdir(path_data)
 all_gm_files=glob.glob(path_data+'*meteo.txt')
 li_site_names = [j[-28:-22] for j in all_gm_files]
 gm=pd.DataFrame()
 gm['GM']=[pd.read_csv(i, sep='\t', na_values='null', keep_default_na=True) for i in all_gm_files]
-li_names_gm = ['ATOLL','BAQS', 'BCN', 'DEM','HEL', 'LON-MR','LON-NK', 
+li_names_gm_wrong =   ['LON-NK', 'SIRTA', 'BAQS', 'MAR-LCP', 'BCN', 'DEM', 'PRG-SUCH', 
+                       'NOA', 'ATOLL', 'LON-MR', 'HEL', 'MAD-CIE']
+gm.index = li_names_gm_wrong
+li_names_gm= ['ATOLL','BAQS', 'BCN', 'DEM','HEL', 'LON-MR','LON-NK', 
                'MAD-CIE', 'MRS-LCP', 'NOA', 'PRG-SUCH', 'SIRTA'] 
-gm.index = li_names_gm
+gm=gm.reindex(li_names_gm)
 #%% Importing BC
 os.chdir(path_data)
 all_bc_files=glob.glob(path_data+'*BC.txt')
 li_site_names = [j[-12:-7] for j in all_bc_files]
-print(li_site_names)
 bc=pd.DataFrame()
+li_names_bc_wrong = ['MAR-LCP', 'HEL', 'GRA', 'LON-MR', 'SIRTA', 'BAQS', 'BCN', 'LON-NK', 
+               'NOA', 'MAD-CIE', 'INO', 'MI', 'ZUR', 'DEM', 'ATOLL']
 bc['BC']=[pd.read_csv(i, sep='\t', na_values='null', keep_default_na=True) for i in all_bc_files]
+bc.index = li_names_bc_wrong
 li_names_bc = ['ATOLL','BAQS', 'BCN', 'DEM', 'GRA', 'HEL', 'INO', 'ISP', 'LON-MR','LON-NK', 
-               'MAD-CIE', 'MI', 'MRS-LCP', 'NOA', 'SIRTA', 'ZUR'] 
-bc.index = li_names_bc
+               'MAD-CIE', 'MI', 'MRS-LCP', 'NOA', 'SIRTA', 'ZUR']
+bc=bc.reindex(li_names_bc) 
 #%% Joining nrpm1, oasa, gases, meteo
 min_date = pd.date_range(start='01/01/2009', end = '31/12/2023', freq='H').strftime('%d/%m/%Y') #The complete time series
 li_all=[]
@@ -238,14 +263,17 @@ for i in range(0,len(chem_comp)):
     dfi=chem_comp.iloc[i][0].copy(deep=True)
     dfi['datetime']=pd.to_datetime(dfi['Time (UTC)'], dayfirst=True, format='mixed', errors='coerce')
     dfi['datehour']=dfi['datetime'].dt.round('H')
-    dfi=dfi.groupby('datehour').mean(numeric_only=True)
+    dfi_d=dfi.groupby('datehour').mean(numeric_only=True)
+    dfi_d=dfi.reset_index()
     if (li_names[i] in oasa.index)==True:
         print('IN OASA!')
         oai=oasa.loc[li_names[i]][0].copy(deep=True)
         oai['datetime']=pd.to_datetime(oai['PMF Time (UTC)'] ,dayfirst=True, errors='raise')
         oai['datehour']=oai['datetime'].dt.round('H')
         oai=oai.groupby('datehour').mean(numeric_only=True)
-        dfi=pd.merge(left=dfi, right=oai, how='outer',left_on='datehour', right_on='datehour')
+        oai = oai.reset_index()
+        dfi_d=pd.merge(left=dfi_d, right=oai, how='outer',left_on='datehour', right_on='datehour')
+        print(dfi_d.mean(numeric_only=True))
     if (li_names[i] in gm.index) == True:
         print('IN GM!')
         gmi=pd.DataFrame()
@@ -253,7 +281,8 @@ for i in range(0,len(chem_comp)):
         gmi['datetime']=pd.to_datetime(gmi['TIME UTC, end'], dayfirst=True,errors='raise')
         gmi['datehour']=gmi['datetime'].dt.round('H')
         gmi=gmi.groupby('datehour').mean(numeric_only=True)
-        dfi=pd.merge(left=dfi, right=gmi, how='outer',left_on='datehour', right_on='datehour')
+        gmi = gmi.reset_index()
+        dfi_d=pd.merge(left=dfi_d, right=gmi, how='outer',left_on='datehour', right_on='datehour')
     if (li_names[i] in bc.index) == True:
         print('IN BC!')
         bci=pd.DataFrame()
@@ -261,86 +290,126 @@ for i in range(0,len(chem_comp)):
         bci['datetime2']=pd.to_datetime(bci['datetime'], dayfirst=True, errors='raise')
         bci['datehour']=bci['datetime2'].dt.round('H')
         bci=bci.groupby('datehour').mean(numeric_only=True)
-        dfi=pd.merge(left=dfi, right=bci, how='outer',left_on='datehour', right_on='datehour')
-    dfi.to_csv(li_names[i]+'_ALL.txt')
-    li_all.append(dfi)
+        bci = bci.reset_index()
+        dfi_d=pd.merge(left=dfi_d, right=bci, how='outer',left_on='datehour', right_on='datehour')
+    dfi_d.to_csv(li_names[i]+'_ALL.txt')
+    li_all.append(dfi_d)
 #%% Rearranging BC?
-li_means=[]
-for i in range(0,len(li_all)):
-    print(li_names[i])
-    dfi = li_all[i]
-    dfi['PM1_sum']=dfi['Org']+dfi['SO4']+dfi['NO3']+dfi['NH4']+dfi['Chl']
-    if li_names[i] in gm.index:
-        print(li_names[i] + 'has BC')
-        dfi['PM1_sum'] = dfi['PM1_sum']+dfi['BC(ng/m3)']/1000.0
-        dfi['BC']=dfi['BC(ng/m3)']/1000.0
-    li_means.append(dfi.mean(numeric_only=True))
-means=pd.DataFrame(li_means)
+# li_means=[]
+# for i in range(0,len(li_all)):
+#     print(li_names[i], '\n')
+#     dfi = li_all[i]
+#     print(dfi.columns)
+#     dfi['PM1_sum']=dfi['Org']+dfi['SO4']+dfi['NO3']+dfi['NH4']+dfi['Chl']
+#     if li_names[i] in gm.index:
+#         print(li_names[i] + 'has BC')
+#         if li_names[i] == 'DEM':
+#             dfi['PM1_sum'] = dfi['PM1_sum']+dfi['BC']/1000.0
+#             dfi['BC']=dfi['BC']/1000.0
+#         elif li_names[i] == 'SIRTA':
+#             dfi['PM1_sum'] = dfi['PM1_sum']+dfi['BC(ng/m3)_x']/1000.0
+#             dfi['BC']=dfi['BC(ng/m3)_x']/1000.0
+#         else: 
+#             dfi['PM1_sum'] = dfi['PM1_sum']+dfi['BC(ng/m3)']/1000.0
+#             dfi['BC']=dfi['BC(ng/m3)']/1000.0
+#     li_means.append(dfi.mean(numeric_only=True))
+# means=pd.DataFrame(li_means)
 #%% Composition plot
 means_plot=pd.DataFrame()
-means_plot.index=['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC', 'HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA']
+means_plot.index=['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC', 'HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA', 'Amine-OA','CCOA', 'CSOA', 'ShInd-OA', 'OOA_BB', 'OOA_BBaq']
 for i in range(0,len(li_all)):
-    if li_names[i] in gm.index and li_names[i] not in oasa.index:
-        toadd=means[['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC']].iloc[i]
-        toadd.index=['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC']
+    dfi=li_all[i]
+    print(li_names[i])
+    # GM and BC
+    if li_names[i] not in oasa.index and li_names[i] in gm.index:
+        if 'BC' in dfi.columns:
+            toadd=dfi[['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC']].mean()
+            toadd.columns=['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC']
+        else:
+            toadd=dfi[['Org', 'SO4', 'NO3', 'NH4', 'Chl']].mean()
+            toadd.columns=['Org', 'SO4', 'NO3', 'NH4', 'Chl']
         toadd.name=li_names[i]
         means_plot = pd.merge(means_plot,toadd, how='outer',left_index=True, right_index=True)
-    elif li_names[i] in oasa.index and li_names[i] not in gm.index:
-        toadd=means[['HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','ShInd-OA', 'CSOA', 'CCOA', 
-                     'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA',
-                     'SO4', 'NO3', 'NH4', 'Chl']].iloc[i]
-        toadd.index=['HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','ShInd-OA', 'CSOA', 'CCOA', 
-                     'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA',
-                     'SO4', 'NO3', 'NH4', 'Chl']
-        toadd.name=li_names[i]
-        means_plot = pd.merge(means_plot,toadd, how='outer',left_index=True, right_index=True)
+        print(1, toadd.columns)
+    #Only GM
     elif li_names[i] in oasa.index and li_names[i] in gm.index:
-        toadd=means[['HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','ShInd-OA', 'CSOA', 'CCOA', 
-                     'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA',
-                     'SO4', 'NO3', 'NH4', 'Chl', 'BC']].iloc[i]
-        toadd.index=['HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','ShInd-OA', 'CSOA', 'CCOA', 
-                     'OOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA',
-                     'SO4', 'NO3', 'NH4', 'Chl', 'BC']
+        if 'BC' in dfi.columns:
+            toadd=dfi[['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC']+[col for col in dfi.columns if (col.endswith('OA') or col.endswith('BB') or col =='Peat' or col =='Wood') ]].mean()
+            toadd.columns=['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC']+[col for col in dfi.columns if (col.endswith('OA') or col.endswith('BB') or col =='Peat' or col =='Wood') ]
+        else: 
+            toadd=dfi[['Org', 'SO4', 'NO3', 'NH4', 'Chl']+[col for col in dfi.columns if (col.endswith('OA') or col.endswith('BB') or col =='Peat' or col =='Wood') ]].mean()
+            toadd.columns=['Org', 'SO4', 'NO3', 'NH4', 'Chl']+[col for col in dfi.columns if (col.endswith('OA') or col.endswith('BB') or col =='Peat' or col =='Wood') ]
         toadd.name=li_names[i]
         means_plot = pd.merge(means_plot,toadd, how='outer',left_index=True, right_index=True)
-    else:
-        toadd=means[['Org', 'SO4', 'NO3', 'NH4', 'Chl']].iloc[i]
-        toadd.index=['Org', 'SO4', 'NO3', 'NH4', 'Chl']
+        print(2, toadd.columns)
+    # Only OA
+    elif li_names[i] in oasa.index and li_names[i] not in gm.index: 
+        if 'BC' in dfi.columns:
+            col_oa_list = ['SO4', 'NO3', 'NH4', 'Chl', 'BC']+[col for col in dfi.columns if (col.endswith('OA') or col.endswith('BB') or col =='Peat' or col =='Wood') ]
+        else: 
+            col_oa_list = ['SO4', 'NO3', 'NH4', 'Chl']+[col for col in dfi.columns if (col.endswith('OA') or col.endswith('BB') or col =='Peat' or col =='Wood') ]
+        toadd=dfi[col_oa_list].mean()
+        toadd.columns=col_oa_list
         toadd.name=li_names[i]
-        means_plot = pd.merge(means_plot,toadd, how='outer',left_index=True, right_index=True)        
+        means_plot = pd.merge(means_plot,toadd, how='outer',left_index=True, right_index=True) 
+        print(3, toadd.columns)
+    else:
+        if 'BC' in dfi.columns:
+            col_oa_list=['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC']
+        else:
+            col_oa_list=['Org', 'SO4', 'NO3', 'NH4', 'Chl']
+        toadd=dfi[col_oa_list].mean()
+        toadd.columns=col_oa_list
+        toadd.name=li_names[i]
+        means_plot = pd.merge(means_plot,toadd, how='outer',left_index=True, right_index=True)
+        print(4, toadd.columns)        
 
 means_plot=means_plot.T
-means_plot = means_plot[[ 'SO4', 'NO3', 'NH4', 'Chl', 'BC', 'Org', 'HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','OOA','ShInd-OA', 'CSOA', 'CCOA', 
-                          'OOA_BBaq', 'OOA_BB', 'Amine-OA',]]
 
-colors_all = ['red', 'blue', 'gold', 'fuchsia', 'black','green', 'grey', 'mediumorchid', 'saddlebrown', 'lightgreen', 'darkgreen','green',
-              'purple','gainsboro', 'hotpink', 'tan', 'sandybrown', 'skyblue' ]
+means_plot = means_plot[['Org','SO4','NO3', 'NH4', 'Chl', 'BC', 'HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA','OOA', 'Amine-OA', 'CCOA', 'CSOA', 'ShInd-OA', 'OOA_BB', 'OOA_BBaq']]
 
-fig, axs=plt.subplots(figsize=(7,4))
-means_plot.plot(kind='bar', stacked=True, color=colors_all, ax=axs, width=0.85)
+colors_all = ['green', 'red', 'blue', 'gold', 'fuchsia', 'black','grey', 'mediumorchid', 'saddlebrown', 'lightgreen', 'darkgreen','green',
+              'skyblue', 'hotpink','rosybrown', 'purple','sandybrown', 'tan']
+
+fig, axs=plt.subplots(figsize=(8,4))
+means_plot.plot(kind='bar', stacked=True, color=colors_all, ax=axs, width=0.75)
 axs.set_xlabel('Sites', fontsize=13)
 axs.set_ylabel('Concentration ($μg·m^{-3}$)', fontsize=13)
-plt.legend(loc=(1.02,-0.24))
-#%%
+plt.legend(loc=(1.02,-0.1))
+
 #%% PM1, OA intercomp!
+os.chdir(path_individual)
 for i in range(0,len(li_names)):
     dfi = li_all[i]
-    print(li_names[i], dfi.columns)
+    col_list=[]
+    print(li_names[i])
     fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(8,8))
-    if li_names =='ZUR':
-        col_list = ['Org', 'SO4', 'NO3', 'NH4', 'Chl']
-    if li_names[i] in gm.index and li_names != 'ZUR':
+    if ("BC(ng/m3)" in dfi.columns) and ("BC" not in dfi.columns):
         dfi['BC_ug']=dfi['BC(ng/m3)']/1000.0
-        col_list = ['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC_ug']
+        col_list = ['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC_ug']  
+    elif ("BC(ng/m3)" not in dfi.columns) and ("BC" in dfi.columns):
+        dfi['BC_ug']=dfi['BC']/1000.0
+        col_list = ['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC_ug']  
+    elif ("BC(ng/m3)" in dfi.columns) and ("BC" in dfi.columns):
+        dfi['BC_ug']=dfi['BC(ng/m3)']/1000.0
+        col_list = ['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC_ug']  
+        dfi.plot(kind='scatter', x='BC_ug', y='BC', ax=axs[1,0], color=dfi.index)
+    elif ("BC(ng/m3)" not in dfi.columns) and ("BC" not in dfi.columns):
+        col_list = ['Org', 'SO4', 'NO3', 'NH4', 'Chl']
     dfi['PM1_ACSM'] = dfi[col_list].sum(axis=1)
-    dfi.plot(kind='scatter', x='PM1(μg/m3)', y='PM1_ACSM', ax=axs[0,0], color=dfi.index)
-    if li_names[i] != 'LON-NK':
-        dfi.plot(kind='scatter', x='PM2.5(μg/m3)', y='PM1_ACSM', ax=axs[1,0], color=dfi.index)
+    if "PM1(μg/m3)" in dfi.columns:
+        dfi.plot(kind='scatter', x='PM1(μg/m3)', y='PM1_ACSM', ax=axs[0,0], color=dfi.index)
+    # if li_names[i] == 'LON-NK':
+        # dfi.plot(kind='scatter', x='PM2.5(μg/m3)', y='PM1_ACSM', ax=axs[0,1], color=dfi.index)
     if li_names[i] in oasa.index:
-        col_list = [col for col in dfi.columns if (col.endswith('OA') or col.endswith('BB') or col =='Peat' or col =='Wood') ]
-        dfi['OA_app'] = dfi[col_list].sum(axis=1)
+        col_oa_list = [col for col in dfi.columns if (col.endswith('OA') or col.endswith('BB') or col =='Peat' or col =='Wood') ]
+        dfi['OA_app'] = dfi[col_oa_list].sum(axis=1)
         dfi.plot(kind='scatter', x='Org', y='OA_app', ax=axs[1,1], color=dfi.index)
+    print(dfi['PM1_ACSM'].mean())
     plt.suptitle(li_names[i])
+    os.chdir(path_individual)
+    fig.savefig(li_names[i]+'_mass_closure.png')
+
 #%% Color arrangement and pies
 factors_names=[]#pd.DataFrame()
 for i in range(0,len(li_names_sa)):
@@ -353,10 +422,11 @@ colors_oasa=factors_names.replace({'HOA': 'grey', 'COA': 'mediumpurple', 'Amine-
                                    'OOA': 'green', 'Total OOA':'green', 'OOA_BB': 'olivedrab', 'OOA_BBaq':'olive','LOA':'yellow',
                                    'HOA1': 'grey', 'HOA2': 'dimgrey', 'CSOA': 'rosybrown', 'WoodOA': 'sienna', 
                                    'PeatOA': 'sienna', 'CoalOA': 'sienna', 'POA': 'darkkhaki', 'CCOA': 'sandybrown',
-                                   '58-OA': 'hotpink', 'ShInd-OA': 'purple', 'seasaltOA':'darkcyan','BBOA1': 'saddlebrown', 'BBOA2': 'saddlebrown' })
+                                   '58-OA': 'hotpink', 'ShInd-OA': 'purple', 'seasaltOA':'darkcyan','BBOA1': 'saddlebrown', 'BBOA2': 'saddlebrown', 
+                                   'MOOOA':'darkgreen', 'LOOOA':'yellowgreen'})
 colors_oasa.loc['VLN'] = pd.Series(['slategrey', 'darkkhaki', 'saddlebrown', 'grey', 'darkgreen', 'yellowgreen', 'None'])
 
-fig, axs=plt.subplots(nrows=4, ncols=5, figsize=(8,6))
+fig, axs=plt.subplots(nrows=4, ncols=5, figsize=(10,8))
 rows=range(0,4)
 cols=range(0,5)
 matrix_idx = [(i, j) for i in rows  for j in cols]
@@ -366,17 +436,31 @@ for k in range(0,len(oasa)):
     colors_i=colors_oasa.loc[li_names_sa[k]].iloc[0:len(oasa_i)].tolist()                
     colors_i = [i for i in colors_i if i is not None]
     print(li_names_sa[k], colors_i)
-    oasa_i.plot.pie(ax=axs[matrix_idx[k]], title=li_names_sa[k], fontsize=7, colors=colors_i, 
-                    autopct='%1.0f%%', startangle=90,counterclock=False)
+    oasa_i.plot.pie(ax=axs[matrix_idx[k]], title=li_names_sa[k], fontsize=8, colors=colors_i, 
+                    autopct='%1.0f%%', startangle=90,counterclock=False, ylabel='')
 fig.delaxes(axs[3,4])
-#%%
+#%% Theil Senn.
+from scipy import stats
+res = stats.theilslopes(dfi['Org'], dfi['datetime'], 0.90)
+print(res)
+#%% Mean compounds by type
 means_bytype = means_plot[['SO4', 'NO3', 'NH4', 'Chl', 'BC', 'Org', 'HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA',
-                           'OOA','ShInd-OA', 'CSOA', 'CCOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA']]
+                           'OOA']]#,'ShInd-OA', 'CSOA', 'CCOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA']]
+means_bytype['OOA']=means_bytype['MO-OOA']+means_bytype['LO-OOA']
 metadata2=metadata.copy(deep=True)
 metadata2.index=metadata['Acronym']
 means_bytype['Type']=metadata2['Type']
-means_bytype2= means_bytype.groupby(means_plot['Type']).mean()
-means_bytype2.plot()
+means_bytype2= means_bytype.groupby(means_bytype['Type']).mean()
+means_bytype2_desv= means_bytype.groupby(means_bytype['Type']).std()
+means_bytype2=means_bytype2.reindex(['UB', 'SU', 'TR', 'RB'])
+means_bytype2_desv=means_bytype2_desv.reindex(['UB', 'SU', 'TR', 'RB'])
+
+fig, axs=plt.subplots(figsize=(8,4))
+means_bytype2.T.plot(kind='bar', ax=axs, width=0.8, yerr=means_bytype2_desv.T, 
+                     color=['royalblue', 'orange', 'grey', 'green'])
+axs.set_ylabel('Mean Concentratizon ($μg·m^{-3}$)', fontsize=13)
+axs.set_xlabel('Main NR-PM$_1$ compounds and sources', fontsize=13)
+axs.legend(loc='upper left')
 #%% MAPPPPP
 li_nr_avg=[]
 for i in range(0,len(li_dfs)):
@@ -425,6 +509,79 @@ for j in range(0,len(factors)):
         if li_names[i] in li_names[i]:
             print(li_names[i])
             dfi=pd.DataFrame(chem_comp.iloc[i][0])
+            dfi['datetime']=pd.to_datetime(dfi['Time (UTC)'], dayfirst=True)
+            dfi['Month']=dfi['datetime'].dt.month
+            dfi['Hour']=dfi['datetime'].dt.hour
+            df_h=pd.concat([df_h, dfi[factor].groupby(by=dfi['Hour']).mean(numeric_only=True)], axis=1)
+            df_m=pd.concat([df_m, dfi[factor].groupby(by=dfi['Month']).mean(numeric_only=True)], axis=1)
+        # df_h.columns = li_names
+    # df_m.columns = li_names
+
+    df_m_n=df_m/df_m.sum(axis=0)
+    df_h_n=df_h/df_h.sum(axis=0)
+    df_m_n.plot(ax=axs[j,0],  color='grey', legend=False)
+    df_m_n.mean(axis=1).plot(ax=axs[j,0],  color=nr_colors[j], legend=False)
+    df_h_n.plot(ax=axs[j,1],  color='grey', legend=False)
+    df_h_n.mean(axis=1).plot(ax=axs[j,1],  color=nr_colors[j], legend=False)
+    axs[j,0].set_ylim(-0.05, 0.3)
+    axs[j, 0].set_ylabel(factors[j])
+axs[4,0].set_xlabel('Monthly cycle')
+axs[4,1].set_xlabel('Diel cycle')
+
+# fig.suptitle('\nGroup 4: High Cl$^-$' , fontsize=14)#$NO_3 ^{-}$ ~ $SO_4^{2-}$'
+#%% Diels and monthlys per type
+fig, axs=plt.subplots(nrows=5, ncols=2, figsize=(10,10))
+factors=['Org', 'SO4', 'NO3', 'NH4', 'Chl']
+for j in range(0,len(factors)):
+    factor=factors[j]
+    print(factor)
+    df_h = pd.DataFrame()
+    df_m = pd.DataFrame()
+    for i in range(0,len(li_dfs)):
+        print(li_names[i])
+        dfi=pd.DataFrame(chem_comp.iloc[i][0])
+        dfi['datetime']=pd.to_datetime(dfi['Time (UTC)'], dayfirst=True)
+        dfi['Month']=dfi['datetime'].dt.month
+        dfi['Hour']=dfi['datetime'].dt.hour
+        df_h=pd.concat([df_h, dfi[factor].groupby(by=dfi['Hour']).mean(numeric_only=True)], axis=1)
+        df_m=pd.concat([df_m, dfi[factor].groupby(by=dfi['Month']).mean(numeric_only=True)], axis=1)
+
+    df_m.columns=li_names
+    df_h.columns=li_names
+    df_m_n=df_m/df_m.sum(axis=0)
+    df_h_n=df_h/df_h.sum(axis=0)
+    mask_ub = [li_names[i] for i in range(0,len(li_names)) if metadata['Type'].iloc[i]=='UB' ]
+    mask_su = [li_names[i] for i in range(0,len(li_names)) if metadata['Type'].iloc[i]=='SU' ]
+    mask_tr = [li_names[i] for i in range(0,len(li_names)) if metadata['Type'].iloc[i]=='TR' ]
+    mask_rb = [li_names[i] for i in range(0,len(li_names)) if metadata['Type'].iloc[i]=='RB' ]
+
+    
+    df_m_n[mask_ub].mean(axis=1).plot(ax=axs[j,0],  color='royalblue', legend=False)
+    df_h_n[mask_ub].mean(axis=1).plot(ax=axs[j,1],  color='royalblue', legend=False)
+    df_m_n[mask_su].mean(axis=1).plot(ax=axs[j,0],  color='orange', legend=False)
+    df_h_n[mask_su].mean(axis=1).plot(ax=axs[j,1],  color='orange', legend=False)
+    df_m_n[mask_tr].mean(axis=1).plot(ax=axs[j,0],  color='grey', legend=False)
+    df_h_n[mask_tr].mean(axis=1).plot(ax=axs[j,1],  color='grey', legend=False)
+    df_m_n[mask_rb].mean(axis=1).plot(ax=axs[j,0],  color='green', legend=False)
+    df_h_n[mask_rb].mean(axis=1).plot(ax=axs[j,1],  color='green', legend=False)
+    axs[j,0].set_ylim(-0.05, 0.3)
+    axs[j, 0].set_ylabel(factors[j])
+axs[4,0].set_xlabel('Monthly cycle')
+axs[4,1].set_xlabel('Diel cycle')
+axs.legend(loc=(1.1, 0.5))
+# fig.suptitle('\nGroup 4: High Cl$^-$' , fontsize=14)#$NO_3 ^{-}$ ~ $SO_4^{2-}$'
+#%% Diels and monthlys
+fig, axs=plt.subplots(nrows=5, ncols=2, figsize=(10,10))
+factors=['Org', 'SO4', 'NO3', 'NH4', 'Chl']
+for j in range(0,len(factors)):
+    factor=factors[j]
+    print(factor)
+    df_h = pd.DataFrame()
+    df_m = pd.DataFrame()
+    for i in range(0,len(li_dfs)):
+        if li_names[i] in li_names[i]:
+            print(li_names[i])
+            dfi=pd.DataFrame(chem_comp.iloc[i][0])
             dfi['datetime']=pd.to_datetime(dfi['Time (UTC)'], dayfirst=True, format='mixed' )
             dfi['Month']=dfi['datetime'].dt.month
             dfi['Hour']=dfi['datetime'].dt.hour
@@ -445,8 +602,6 @@ axs[4,0].set_xlabel('Monthly cycle')
 axs[4,1].set_xlabel('Diel cycle')
 
 # fig.suptitle('\nGroup 4: High Cl$^-$' , fontsize=14)#$NO_3 ^{-}$ ~ $SO_4^{2-}$'
-#%%
-
 #%%
 no3_like = ['MAQS',' STR', 'REN', 'DUB', 'MAD-CIE', 'DEM', 'PAR-HAL', 'POI', 'MET', 'SIRTA', 'LON-NK', 'LYO', 'TAL', 'PAR-GEN', 'CRE', 'LON-MR', 'VLN', 'ATOLL', 'BO', 'PAR-BPE', 'IPR', 'GRA', 'MI']
 so4_like = ['TAR', 'MAR-LCP', 'BCN', 'CAO-NIC', 'NOA', 'PD']
