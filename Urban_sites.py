@@ -5,18 +5,6 @@ Created on Thu Feb  1 12:00:12 2024
 @author: Marta Via
 """
 
-#%%import pandas as pd
-import numpy as np
-import glob
-import os as os
-import datetime as dt
-import matplotlib.pyplot as plt
-import pandas as pd
-from scipy.stats import linregress
-from scipy import stats
-os.chdir(path_py)
-# from Treatment import *
-# trt = Basics(5)
 # %% paths definition
 path_py_wdws ="C:/Users/maria/Documents/Marta Via/1. PhD/F. Scripts/Python Scripts/"
 path_py_mac ="/Users/martaviagonzalez/Documents/GitHub/EU_Overview/"
@@ -42,7 +30,18 @@ else:
     path_data = path_data_wdws 
     path_folder = path_folder_wdws
     path_individual=path_individual_wdws
-
+#%%import pandas as pd
+import numpy as np
+import glob
+import os as os
+import datetime as dt
+import matplotlib.pyplot as plt
+import pandas as pd
+from scipy.stats import linregress
+from scipy import stats
+os.chdir(path_py)
+# from Treatment import *
+# trt = Basics(5)
 #%% Colors
 nr_colors=['green', 'red', 'blue', 'gold', 'fuchsia']
 #%% Boxprops
@@ -170,6 +169,83 @@ for i in range(0,len(chem_comp)):
     dfi.drop('Time (Local)', inplace=True, errors='ignore')
     dfi['datetime']=pd.to_datetime(dfi['Time (UTC)'], dayfirst=True)#, format='mixed')
     li_dfi.append(dfi)    
+
+#%% Theil-Senn in a loop Absolute and relative
+from scipy import stats
+
+comps=['NR-PM1', 'Org', 'SO4', 'NO3', 'NH4', 'Chl']
+long_ts = ['ATOLL', 'BCN', 'CRE', 'DUB', 'HEL', 'HPB', 'INO', 'LYO', 'MAD-CIE', 'MAR-LCP', 'MET', 'NOA', 'POI', 'SIRTA', 'TAL', 'ZUR']
+colors=['orange', 'royalblue', 'royalblue', 'royalblue', 'grey', 'green', 'orange', 
+                 'royalblue', 'royalblue', 'royalblue', 'royalblue', 'royalblue', 'royalblue', 'orange', 'royalblue', 'royalblue']
+
+fig, axs=plt.subplots(figsize=(10,8), nrows=6, ncols=2, sharex=True)
+for j in range(0,len(comps)):
+    mk, mkr=[],[]
+    print(comps[j])
+    for i in range(0,len(li_dfi)):
+        dfi=li_dfi[i]
+        dfi['NR-PM1']=dfi[comps[1:]].sum(axis=1)
+        dfid=dfi.groupby(dfi['date']).mean(numeric_only=True)
+        res = stats.theilslopes(y=dfid[comps[j]], x=range(len(dfid)), alpha=0.95)
+        if j!=0:
+            dfidr=100.0*dfid[['Org', 'SO4', 'NO3', 'NH4', 'Chl']].divide(dfid[['Org', 'SO4', 'NO3', 'NH4', 'Chl']].sum(axis=1), axis=0)
+            resr = stats.theilslopes(y=dfidr[comps[j]], x=range(len(dfid)), alpha=0.95)
+            mkr.append(resr)
+        mk.append(res)
+    mk_df=pd.DataFrame(mk)
+    mkr_df=pd.DataFrame(mkr)
+    mk_df.to_csv('Mann_Kendall_results_'+comps[j]+'.txt', sep='\t')
+
+#Selection of only the years of highest availability  
+    if j!=0:
+        mkr_df.to_csv('Mann_Kendall_results_Relative_'+comps[j]+'.txt', sep='\t')
+        mkr_df['Type']=metadata['Type']
+        mkr_df['Acr']=li_names
+        df_mkr=mkr_df[mkr_df['Acr'].isin(long_ts)]
+        df_mkr=df_mkr.sort_values( 'Acr', ascending=True)
+        df_mkr.index=range(0,len(df_mkr))
+
+    mk_df['Type']=metadata['Type']
+    mk_df['Acr']=li_names
+    df_mk=mk_df[mk_df['Acr'].isin(long_ts)]
+
+    df_mk=df_mk.sort_values( 'Acr', ascending=True)
+    df_mk.index=range(0,len(df_mk))
+
+# Theil-Senn Plot
+    df_mk['x']=df_mk.index  
+    df_mk.plot.scatter(y='slope',x='x', ax=axs[j,0], marker='s',color=colors, s=50, zorder=7)#,
+    axs[j,0].errorbar(y=df_mk['slope'],x=df_mk['x'],yerr=[df_mk['low_slope'], df_mk['high_slope']],fmt='o', color='grey', zorder=1)
+    axs[j,0].set_ylabel(comps[j])
+    axs[j,0].set_xticks(range(0,len(df_mk)))
+    axs[j,0].set_xticklabels(df_mk['Acr'], rotation=90)
+    axs[j,0].grid()
+
+    if j!=0:
+        df_mkr['x']=df_mkr.index
+        df_mkr.plot.scatter(y='slope',x='x', ax=axs[j,1], marker='s',color=colors, s=50, zorder=7)#,
+        axs[j,1].errorbar(y=df_mkr['slope'],x=df_mkr['x'],yerr=[df_mkr['low_slope'], df_mkr['high_slope']],fmt='o', color='grey', zorder=1)
+        axs[j,1].set_ylabel('')
+        axs[j,1].set_xticks(range(0,len(df_mkr)))
+        axs[j,1].set_xticklabels(df_mkr['Acr'], rotation=90)
+        axs[j,1].grid()
+
+
+axs[5,0].set_xlabel('\nSites', fontsize=14)
+axs[5,1].set_xlabel('\nSites', fontsize=14)
+fig.text(-0.03, 0.5, 'Theil-Senn slopes', va='center', rotation='vertical', fontsize=14)
+fig.text(0.3, 0.93, 'Absolute', ha='center',fontsize=14)
+fig.text(0.7, 0.93, 'Relative', ha='center',fontsize=14)
+
+legend_elements = [Line2D([0], [0], color='royalblue', label='UB', ),
+                   Line2D([0], [0], color='darkorange', label='SU'), 
+                   Line2D([0], [0], color='grey', label='TR'), 
+                   Line2D([0], [0], color='green', label='RB')]
+plt.legend(handles=legend_elements, loc = (0.82,6.02))#'upper right')
+fig.delaxes(axs[0,1])
+
+fig.tight_layout()
+
 #%% Mean site composition
 means= pd.DataFrame([i.mean(numeric_only=True) for i in li_dfi])
 means=means[['Org', 'SO4', 'NO3', 'NH4', 'Chl']]
@@ -422,10 +498,9 @@ colors_oasa=factors_names.replace({'HOA': 'grey', 'COA': 'mediumpurple', 'Amine-
                                    'OOA': 'green', 'Total OOA':'green', 'OOA_BB': 'olivedrab', 'OOA_BBaq':'olive','LOA':'yellow',
                                    'HOA1': 'grey', 'HOA2': 'dimgrey', 'CSOA': 'rosybrown', 'WoodOA': 'sienna', 
                                    'PeatOA': 'sienna', 'CoalOA': 'sienna', 'POA': 'darkkhaki', 'CCOA': 'sandybrown',
-                                   '58-OA': 'hotpink', 'ShInd-OA': 'purple', 'seasaltOA':'darkcyan','BBOA1': 'saddlebrown', 'BBOA2': 'saddlebrown', 
-                                   'MOOOA':'darkgreen', 'LOOOA':'yellowgreen'})
+                                   '58-OA': 'hotpink', 'ShInd-OA': 'purple', 'seasaltOA':'darkcyan','BBOA1': 'saddlebrown', 'BBOA2': 'saddlebrown'})
 colors_oasa.loc['VLN'] = pd.Series(['slategrey', 'darkkhaki', 'saddlebrown', 'grey', 'darkgreen', 'yellowgreen', 'None'])
-
+oasa_limeans=[]
 fig, axs=plt.subplots(nrows=4, ncols=5, figsize=(10,8))
 rows=range(0,4)
 cols=range(0,5)
@@ -438,11 +513,125 @@ for k in range(0,len(oasa)):
     print(li_names_sa[k], colors_i)
     oasa_i.plot.pie(ax=axs[matrix_idx[k]], title=li_names_sa[k], fontsize=8, colors=colors_i, 
                     autopct='%1.0f%%', startangle=90,counterclock=False, ylabel='')
+    oasa_limeans.append(oasa_i)
 fig.delaxes(axs[3,4])
-#%% Theil Senn.
-from scipy import stats
-res = stats.theilslopes(dfi['Org'], dfi['datetime'], 0.90)
-print(res)
+#%% Redoing the pies plot in bars.
+fig, axs=plt.subplots(figsize=(8,3))
+oasa_df=pd.DataFrame(oasa_limeans)
+oasa_df_norm = 100.0*oasa_df.divide(oasa_df.sum(axis=1), axis=0)
+oasa_df_norm.index=li_names_sa
+oasa_df_norm=oasa_df_norm[['LO-OOA', 'MO-OOA', 'OOA', 'OOA_BB', 'OOA_BBaq',
+                           'HOA', 'HOA1', 'HOA2', 'BBOA', 'PeatOA', 'WoodOA', 'CoalOA',
+                           'COA', 'Amine-OA', 'ShInd-OA', 'LOA ', 'POA ', 'CSOA']]
+colors_OA= ['yellowgreen','darkgreen','green', 'olivedrab', 'olive', 
+            'grey', 'dimgrey','silver', 'saddlebrown', 'darkkhaki', 'goldenrod', 'rosybrown', 
+            'purple', 'skyblue', 'darkcyan', 'hotpink', 'yellow','steelblue']
+oasa_df_norm.plot(kind='bar', stacked=True, ax=axs, color=colors_OA, zorder=7, width=0.83)
+axs.legend(loc=(0.01, -0.91), ncol=5)
+axs.grid(zorder=3)
+axs.set_xlabel('Sites', fontsize=13)
+axs.set_ylabel('Relative concentrations \n(%)', fontsize=13)
+axs.set_title('OA sources', fontsize=14)
+#%% Site diel plots.
+oasadiel, oasadiel_std =[],[]
+factors_names2=[]
+for i in range(0,len(li_names_sa)):
+    print(li_names_sa[i])
+    oasai=pd.DataFrame(oasa.iloc[i].tolist()[0])
+    oasai['datetime']=pd.to_datetime(oasai['PMF Time (Local)'], dayfirst=True)
+    # if li_names_sa[i] =='BCN'or li_names_sa[i] =='SIRTA':
+        # li_df=[oasai['datetime'].iloc[i]+ dt.timedelta(hours=1)]
+        # oasai['datetime']=oasai['datetime'] + dt.timedelta(hours=1)
+        # print(oasai['datetime'].head(5))
+    oasai['Hour']=oasai['datetime'].dt.hour
+    oasai_diel=oasai.groupby(oasai['Hour']).mean(numeric_only=True)
+    oasai_diel_std=oasai.groupby(oasai['Hour']).std()
+    oasadiel.append(oasai_diel)
+    oasadiel_std.append(oasai_diel)
+    if li_names_sa[i] =='BCN' or li_names_sa[i] =='SIRTA':
+        factors_names2.append(oasai_diel.columns[1:].tolist())
+    else:
+        factors_names2.append(oasai_diel.columns.tolist())
+        
+factors_names=pd.DataFrame(factors_names2)
+# factors_names3.drop(labels=['datetime', 'Hour'], axis=1, inplace=True, errors='ignore')
+colors_oa=factors_names.replace({'HOA': 'grey', 'COA': 'mediumpurple', 'Amine-OA': 'skyblue',
+                                   'BBOA': 'saddlebrown', 'LO-OOA': 'yellowgreen','MO-OOA':'darkgreen', 
+                                   'OOA': 'green', 'OOA_BB': 'olivedrab', 'OOA_BBaq':'olive','LOA':'hotpink',
+                                   'HOA1': 'dimgrey', 'HOA2': 'silver', 'CSOA': 'steelblue', 'WoodOA': 'goldenrod', 
+                                   'PeatOA': 'darkkhaki', 'CoalOA': 'rosybrown', 'POA ': 'yellow', 'LOA ': 'hotpink', 
+                                   '58-OA': 'hotpink', 'ShInd-OA': 'purple', 'seasaltOA':'darkcyan','BBOA1': 'saddlebrown', 'BBOA2': 'saddlebrown'})
+colors_oa.index=li_names_sa
+rows=range(0,4)
+cols=range(0,5)
+matrix_idx = [(i, j) for i in rows  for j in cols]
+fig, axs=plt.subplots(nrows=4, ncols=5, figsize=(10,8), sharex=True, tight_layout=True)
+
+for k in range(0,len(oasadiel)):
+    diel_k=oasadiel[k].copy(deep=True)
+    diel_k_norm = 100.0*diel_k.divide(diel_k.sum(axis=1), axis=0)
+    print(li_names_sa[k], matrix_idx[k])
+    colors_i=colors_oa.loc[li_names_sa[k]].iloc[0:len(oasa_i)].tolist()                
+    colors_i = [i for i in colors_i if i is not None]
+    diel_k_norm.plot(ax=axs[matrix_idx[k]], legend=False, color=colors_i, title=li_names_sa[k])
+    axs[matrix_idx[k]].set_xlabel('')
+    axs[matrix_idx[k]].set_xticks(range(0,25,3))
+    axs[matrix_idx[k]].set_xticklabels(range(0,25,3))
+    axs[matrix_idx[k]].grid()
+axs[2,4].set_xticks(range(0,25,3))#
+axs[2,4].set_xticklabels(range(0,25,3))#
+fig.text(x=-0.05, y=0.5, s='Normalised Concentration (%)', fontsize=14, va='center', rotation = 'vertical')
+fig.text(x=0.45, y=-0.05, s='Local time (h)', fontsize=14, ha='center')
+
+fig.delaxes(axs[3,4])
+#%% Site monthly plots.
+oasamonthly, oasamonthly_std =[],[]
+factors_names3=[]
+for i in range(0,len(li_names_sa)):
+    print(li_names_sa[i])
+    oasai=pd.DataFrame(oasa.iloc[i].tolist()[0])
+    oasai['datetime']=pd.to_datetime(oasai['PMF Time (UTC)'], dayfirst=True)
+    oasai['Month']=oasai['datetime'].dt.month
+    oasai_monthly=oasai.groupby(oasai['Month']).mean(numeric_only=True)
+    oasai_monthly_std=oasai.groupby(oasai['Month']).std()
+    oasamonthly.append(oasai_monthly)
+    oasamonthly_std.append(oasai_monthly)
+    factors_names3.append(oasai_monthly.columns[:-2].tolist())
+#%%
+factors_names=pd.DataFrame(factors_names3)
+# factors_names3.drop(labels=['datetime', 'Hour'], axis=1, inplace=True, errors='ignore')
+colors_oa=factors_names.replace({'HOA': 'grey', 'COA': 'mediumpurple', 'Amine-OA': 'skyblue',
+                                   'BBOA': 'saddlebrown', 'LO-OOA': 'yellowgreen','MO-OOA':'darkgreen', 
+                                   'OOA': 'green', 'OOA_BB': 'olivedrab', 'OOA_BBaq':'olive','LOA':'hotpink',
+                                   'HOA1': 'dimgrey', 'HOA2': 'silver', 'CSOA': 'steelblue', 'WoodOA': 'goldenrod', 
+                                   'PeatOA': 'darkkhaki', 'CoalOA': 'rosybrown', 'POA ': 'yellow', 'LOA ': 'hotpink', 
+                                   '58-OA': 'hotpink', 'ShInd-OA': 'purple', 'seasaltOA':'darkcyan','BBOA1': 'saddlebrown', 'BBOA2': 'saddlebrown'})
+colors_oa.index=li_names_sa
+rows=range(0,4)
+cols=range(0,5)
+matrix_idx = [(i, j) for i in rows  for j in cols]
+fig, axs=plt.subplots(nrows=4, ncols=5, figsize=(10,8), sharex=True, tight_layout=True)
+# dfidr=100.0*dfid[['Org', 'SO4', 'NO3', 'NH4', 'Chl']].divide(dfid[['Org', 'SO4', 'NO3', 'NH4', 'Chl']].sum(axis=1), axis=0)
+
+for k in range(0,len(oasadiel)):
+    monthly_k=oasamonthly[k].copy(deep=True)
+    monthly_k_norm = 100.0*monthly_k.divide(monthly_k.sum(axis=1), axis=0)
+    monthly_k_norm.drop(['Hour', 'Monthly'], axis=1, inplace=True)
+    print(li_names_sa[k], matrix_idx[k])
+    colors_i=colors_oa.loc[li_names_sa[k]].iloc[0:len(oasa_i)].tolist()                
+    colors_i = [i for i in colors_i if i is not None]
+    monthly_k_norm.plot(ax=axs[matrix_idx[k]], legend=False, color=colors_i, title=li_names_sa[k])
+    axs[matrix_idx[k]].set_xlabel('')
+    axs[matrix_idx[k]].set_xticks(range(0,13,1))
+    axs[matrix_idx[k]].set_xticklabels(['', 'J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'], minor=True)
+    axs[matrix_idx[k]].grid( alpha=0.7, axis='x')
+axs[2,4].set_xticks(range(0,13,1))#
+axs[2,4].set_xticklabels(['', 'J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'])#
+fig.text(x=-0.05, y=0.5, s='Normalised Concentration (%)', fontsize=14, va='center', rotation = 'vertical')
+fig.text(x=0.45, y=-0.05, s='Local time (h)', fontsize=14, ha='center')
+
+fig.delaxes(axs[3,4])
+
 #%% Mean compounds by type
 means_bytype = means_plot[['SO4', 'NO3', 'NH4', 'Chl', 'BC', 'Org', 'HOA', 'COA', 'BBOA', 'LO-OOA', 'MO-OOA',
                            'OOA']]#,'ShInd-OA', 'CSOA', 'CCOA', 'OOA_BBaq', 'OOA_BB', 'Amine-OA']]
