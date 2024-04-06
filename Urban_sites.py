@@ -428,7 +428,6 @@ for i in range(0,len(li_all)):
         toadd.columns=col_oa_list
         toadd.name=li_names[i]
         means_plot = pd.merge(means_plot,toadd, how='outer',left_index=True, right_index=True) 
-        print(3, toadd.columns)
     else:
         if 'BC' in dfi.columns:
             col_oa_list=['Org', 'SO4', 'NO3', 'NH4', 'Chl', 'BC']
@@ -497,7 +496,7 @@ colors_oasa=factors_names.replace({'HOA': 'grey', 'COA': 'mediumpurple', 'Amine-
                                    'BBOA': 'saddlebrown', 'LO-OOA': 'yellowgreen','MO-OOA':'darkgreen', 
                                    'OOA': 'green', 'Total OOA':'green', 'OOA_BB': 'olivedrab', 'OOA_BBaq':'olive','LOA':'yellow',
                                    'HOA1': 'grey', 'HOA2': 'dimgrey', 'CSOA': 'rosybrown', 'WoodOA': 'sienna', 
-                                   'PeatOA': 'sienna', 'CoalOA': 'sienna', 'POA': 'darkkhaki', 'CCOA': 'sandybrown',
+                                   'PeatOA': 'sienna', 'CoalOA': 'rosybrown', 'POA': 'darkkhaki', 'CCOA': 'sandybrown',
                                    '58-OA': 'hotpink', 'ShInd-OA': 'purple', 'seasaltOA':'darkcyan','BBOA1': 'saddlebrown', 'BBOA2': 'saddlebrown'})
 colors_oasa.loc['VLN'] = pd.Series(['slategrey', 'darkkhaki', 'saddlebrown', 'grey', 'darkgreen', 'yellowgreen', 'None'])
 oasa_limeans=[]
@@ -538,20 +537,14 @@ factors_names2=[]
 for i in range(0,len(li_names_sa)):
     print(li_names_sa[i])
     oasai=pd.DataFrame(oasa.iloc[i].tolist()[0])
-    oasai['datetime']=pd.to_datetime(oasai['PMF Time (Local)'], dayfirst=True)
-    # if li_names_sa[i] =='BCN'or li_names_sa[i] =='SIRTA':
-        # li_df=[oasai['datetime'].iloc[i]+ dt.timedelta(hours=1)]
-        # oasai['datetime']=oasai['datetime'] + dt.timedelta(hours=1)
-        # print(oasai['datetime'].head(5))
+    oasai['datetime']=pd.to_datetime(oasai['PMF Time (UTC)'], dayfirst=True)
     oasai['Hour']=oasai['datetime'].dt.hour
+    oasai.drop(labels='PMF Time (Local)', axis=1, inplace=True)
     oasai_diel=oasai.groupby(oasai['Hour']).mean(numeric_only=True)
     oasai_diel_std=oasai.groupby(oasai['Hour']).std()
     oasadiel.append(oasai_diel)
     oasadiel_std.append(oasai_diel)
-    if li_names_sa[i] =='BCN' or li_names_sa[i] =='SIRTA':
-        factors_names2.append(oasai_diel.columns[1:].tolist())
-    else:
-        factors_names2.append(oasai_diel.columns.tolist())
+    factors_names2.append(oasai_diel.columns.tolist())
         
 factors_names=pd.DataFrame(factors_names2)
 # factors_names3.drop(labels=['datetime', 'Hour'], axis=1, inplace=True, errors='ignore')
@@ -584,6 +577,16 @@ fig.text(x=-0.05, y=0.5, s='Normalised Concentration (%)', fontsize=14, va='cent
 fig.text(x=0.45, y=-0.05, s='Local time (h)', fontsize=14, ha='center')
 
 fig.delaxes(axs[3,4])
+
+legend_elements = [Line2D([0], [0], color='grey', label='HOA'), Line2D([0], [0], color='saddlebrown', label='BBOA' ),
+                   Line2D([0], [0], color='yellowgreen', label='LO-OOA'), Line2D([0], [0], color='darkgreen', label='MO-OOA'),
+                   Line2D([0], [0], color='green', label='OOA'), Line2D([0], [0], color='mediumorchid', label='COA'), 
+                   Line2D([0], [0], color='rosybrown', label='Coal OA'),Line2D([0], [0], color='darkkhaki', label='Peat OA'), 
+                   Line2D([0], [0], color='goldenrod', label='Wood OA'), Line2D([0], [0], color='skyblue', label='Amine-OA'),
+                   Line2D([0], [0], color='purple', label='ShIndOA'), Line2D([0], [0], color='yellow', label='POA'), 
+                   Line2D([0], [0], color='hotpink', label='LOA'), Line2D([0], [0], color='steelblue', label='CSOA')]
+fig.legend(loc=(0.8,-0.2), handles=legend_elements,ncol=2)
+
 #%% Site monthly plots.
 oasamonthly, oasamonthly_std =[],[]
 factors_names3=[]
@@ -592,13 +595,14 @@ for i in range(0,len(li_names_sa)):
     oasai=pd.DataFrame(oasa.iloc[i].tolist()[0])
     oasai['datetime']=pd.to_datetime(oasai['PMF Time (UTC)'], dayfirst=True)
     oasai['Month']=oasai['datetime'].dt.month
+    oasai.drop(labels='PMF Time (Local)', axis=1, inplace=True)
     oasai_monthly=oasai.groupby(oasai['Month']).mean(numeric_only=True)
     oasai_monthly_std=oasai.groupby(oasai['Month']).std()
     oasamonthly.append(oasai_monthly)
     oasamonthly_std.append(oasai_monthly)
     factors_names3.append(oasai_monthly.columns[:-2].tolist())
-#%%
 factors_names=pd.DataFrame(factors_names3)
+#%%
 # factors_names3.drop(labels=['datetime', 'Hour'], axis=1, inplace=True, errors='ignore')
 colors_oa=factors_names.replace({'HOA': 'grey', 'COA': 'mediumpurple', 'Amine-OA': 'skyblue',
                                    'BBOA': 'saddlebrown', 'LO-OOA': 'yellowgreen','MO-OOA':'darkgreen', 
@@ -616,7 +620,7 @@ fig, axs=plt.subplots(nrows=4, ncols=5, figsize=(10,8), sharex=True, tight_layou
 for k in range(0,len(oasadiel)):
     monthly_k=oasamonthly[k].copy(deep=True)
     monthly_k_norm = 100.0*monthly_k.divide(monthly_k.sum(axis=1), axis=0)
-    monthly_k_norm.drop(['Hour', 'Monthly'], axis=1, inplace=True)
+    monthly_k_norm.drop(['Hour'], axis=1, inplace=True)
     print(li_names_sa[k], matrix_idx[k])
     colors_i=colors_oa.loc[li_names_sa[k]].iloc[0:len(oasa_i)].tolist()                
     colors_i = [i for i in colors_i if i is not None]
@@ -796,6 +800,246 @@ no3_like = ['MAQS',' STR', 'REN', 'DUB', 'MAD-CIE', 'DEM', 'PAR-HAL', 'POI', 'ME
 so4_like = ['TAR', 'MAR-LCP', 'BCN', 'CAO-NIC', 'NOA', 'PD']
 no3so4_like = ['HEL', 'DUB', 'PRG-SUCH',' ZUR', 'INO']
 chl_like = ['KRK']
-#%%Heatmap diel and monthly
+#%% Superations arrangement
 
+'''     SUPERATIONS!!    '''
+
+limit_who_25_daily = 15
+limit_who_15_yearly= 5
+
+li_sup_daily, li_ndays = [],[]
+for i in range(0,len(li_nr)):
+    dfi=li_nr[i]
+    mask=dfi.iloc[:,0]>=limit_who_25_daily
+    sup_daily = dfi.loc[mask].count()[0]
+    ndays=len(dfi)
+    li_sup_daily.append(sup_daily)
+    li_ndays.append(ndays)
+sup_daily= pd.DataFrame(data={'Daily WHO superations':li_sup_daily, 'Nb days accounted':li_ndays})
+sup_daily.index=li_sites_names
+sup_daily['Percentage superations'] = 100*sup_daily['Daily WHO superations']/sup_daily['Nb days accounted']
+sup_daily['Type']=li_sites_types
+sup_daily['Type_int']=sup_daily['Type']
+sup_daily['Type_int']=sup_daily['Type_int'].replace('UB',0).replace('RB', 1).replace('SU', 2).replace('C', 3).replace('M', 4).replace('A',5).replace('TR', 6)
+
+
+colors=['royalblue','green', 'darkorange', 'mediumpurple', 'sienna', 'hotpink', 'darkcyan']
+fig, axs = plt.subplots(figsize=(8,10), ncols=2, width_ratios=[3,2])
+sup_daily=sup_daily.sort_values(by='Percentage superations')
+sup_daily['Percentage superations'].plot(kind='barh', ax=axs[0], color=[colors[i] for i in sup_daily['Type_int']], zorder=3)
+axs[0].set_ylabel('Percentage of WHO PM$_{2.5}$ daily thresholds superation', fontsize=13)
+axs[0].set_xlim(0,100)
+axs[0].grid(axis='x', zorder=0)
+axs[0].set_title('NR-PM$_1$ concentration')
+
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
+
+legend_elements = [Line2D([0], [0], color='royalblue', label='Urban background', ),
+                   Line2D([0], [0], color='green', label='Regional background'), 
+                   Line2D([0], [0], color='darkorange', label='Suburban'), 
+                   Line2D([0], [0],  color='mediumpurple', label='Coastal'),
+                   Line2D([0], [0], color='sienna', label='Mountain'), 
+                   Line2D([0], [0], color='hotpink', label='Arctic'), 
+                   Line2D([0], [0], color='darkcyan', label='Traffic')]
+
+axs[0].legend(handles=legend_elements, loc = (1.05,0.752))#'upper right')
+
+sup_pie=sup_daily.groupby('Type').mean()
+sup_pie=sup_pie.sort_values('Percentage superations', ascending=False)
+sup_pie.plot.pie(y='Percentage superations', ax=axs[1], legend=False,autopct='%2.0f%%', labels=None,pctdistance=0.7,fontsize=12, 
+                 startangle=90, counterclock=False, ylabel='', colors=['darkorange', 'royalblue', 'green', 'mediumpurple', 'darkcyan','sienna','hotpink', ])
+
+#%%
+from matplotlib.gridspec import GridSpec
+
+fig = plt.figure(layout="constrained",  figsize=(10,10))
+
+gs = GridSpec(2, 2)
+ax1 = fig.add_subplot(gs[:, 0])
+ax2 = fig.add_subplot(gs[0, 1])
+ax3 = fig.add_subplot(gs[1:, -1])
+
+sup_daily['Percentage superations'].plot(kind='barh', ax=ax1, color=[colors[i] for i in sup_daily['Type_int']], zorder=3)
+ax1.set_ylabel('Percentage of WHO PM$_{2.5}$ daily thresholds superation', fontsize=13)
+ax1.set_xlim(0,100)
+ax1.grid(axis='x', zorder=0)
+ax1.set_title('NR-PM$_1$ concentration')
+
+legend_elements = [Line2D([0], [0], color='royalblue', label='Urban background', ),
+                   Line2D([0], [0], color='green', label='Regional background'), 
+                   Line2D([0], [0], color='darkorange', label='Suburban'), 
+                   Line2D([0], [0],  color='mediumpurple', label='Coastal'),
+                   Line2D([0], [0], color='sienna', label='Mountain'), 
+                   Line2D([0], [0], color='hotpink', label='Arctic'), 
+                   Line2D([0], [0], color='darkcyan', label='Traffic')]
+
+ax1.legend(handles=legend_elements, loc = (0.4,0.02))#'upper right')
+
+sup_pie=sup_daily.groupby('Type').mean()
+sup_pie=sup_pie.sort_values('Percentage superations', ascending=False)
+sup_pie.plot.pie(y='Percentage superations', ax=ax2, legend=False,autopct='%2.0f%%', labels=None,pctdistance=0.7,fontsize=15, 
+                 startangle=90, counterclock=False, ylabel='', colors=['darkorange', 'royalblue', 'green', 'mediumpurple', 'darkcyan','sienna','hotpink', ])
+sup_bp=sup_daily.sort_values(by = 'Type_int')
+
+boxplot = sup_bp.boxplot(column=['Percentage superations'], by='Type', ax=ax3, showmeans=True,
+                            boxprops=bp, medianprops=mdp, meanprops=mp, whiskerprops=wp) 
+ax3.set_title('')
+plt.suptitle('')
+plt.show()
+#%% By years and types of site.
+li_year=[]
+df_year=pd.DataFrame()
+day_count=pd.DataFrame()
+month_to_season_dct = {1: 'DJF', 2: 'DJF',3: 'MAM', 4: 'MAM', 5: 'MAM',6: 'JJA', 7: 'JJA', 8: 'JJA',9: 'SON', 10: 'SON', 11: 'SON',12: 'DJF'}
+df_year.index=range(2010, 2024)
+day_count.index=range(2010, 2024)
+for i in range(0, len(li_nr)):
+    a=li_nr[i].copy(deep=True)
+    a['dt']=li_days[i].loc[:,li_days[i].columns.str.startswith('datetime')]
+    a['date']=pd.to_datetime(a['dt'], dayfirst=True)
+    a['Year']=a['date'].dt.year    
+    a['Month'] = a['date'].dt.month
+    a['Season'] = [month_to_season_dct.get(t_stamp.month) for t_stamp in a.date]
+    mask=a.iloc[:,0]>=limit_who_25_daily
+    b = a.loc[mask]
+    df_year[li_sites_names[i]]=b.groupby('Year').count()['dt']
+    day_count[li_sites_names[i]] = a.groupby('Year').count()['dt']
+ 
+    
+df_year=df_year.T
+day_count=day_count.T
+df_year['Type'], day_count['Type'] = li_sites_types, li_sites_types
+dft_year=df_year.groupby('Type').sum().T
+dayt_count=day_count.groupby('Type').sum().T
+dfplot = 100*dft_year / dayt_count
+dfplot.sort_values(by='Type', axis=1, ascending=False, inplace=True)
+colors_types=['royalblue', 'darkcyan', 'orange', 'green', 'saddlebrown', 'purple', 'hotpink']
+
+fig, axs =plt.subplots(figsize=(8,4))
+dfplot.plot(legend=True,color=colors_types, ax=axs, marker='o', zorder=3)
+axs.set_xlabel('Years', fontsize=12)
+axs.set_ylabel('Percentage of days with \nsuperations (%)', fontsize=12)
+axs.grid(axis='y', zorder=0)
+axs.grid(axis='x', zorder=0)
+
+#%% Per each site, proportion of each sesason per superation days
+li_year=[]
+df_year=pd.DataFrame()
+day_count=pd.DataFrame()
+month_to_season_dct = {1: 'DJF', 2: 'DJF',3: 'MAM', 4: 'MAM', 5: 'MAM',6: 'JJA', 7: 'JJA', 8: 'JJA',9: 'SON', 10: 'SON', 11: 'SON',12: 'DJF'}
+# df_year.index=range(2010, 2024)
+# day_count.index=range(2010, 2024)
+for i in range(0, len(li_nr)):
+    a=li_nr[i].copy(deep=True)
+    a['dt']=li_days[i].loc[:,li_days[i].columns.str.startswith('datetime')]
+    a['date']=pd.to_datetime(a['dt'], dayfirst=True)
+    a['Year']=a['date'].dt.year    
+    a['Month'] = a['date'].dt.month
+    a['Season'] = [month_to_season_dct.get(t_stamp.month) for t_stamp in a.date]
+    mask=a.iloc[:,0]>=limit_who_25_daily
+    b = a.loc[mask]
+    df_year[li_sites_names[i]]=b.groupby('Season').count()['dt']
+    day_count[li_sites_names[i]] = a.groupby('Season').count()['dt']
+
+fig, axs=plt.subplots(figsize=(4,9))
+df_plt=100*df_year /day_count
+df_plot=100*df_plt/df_plt.sum()
+df_plot=df_plot.T
+df_plot=df_plot[['DJF', 'MAM', 'JJA', 'SON' ]]
+df_plot=df_plot.iloc[::-1]
+df_plot.plot(kind='barh', stacked=True,ax=axs, legend=False, zorder=3,
+             color=['royalblue', 'yellowgreen', 'gold', 'orange'])
+axs.grid('y', zorder=2)
+axs.set_xlabel('Percentage of superations per season (%)')
+axs.set_ylabel('Site')
+
+axs.legend(loc=(-0.15,-0.12), ncol=4)
+#%% Average days per season with superation
+fig, axs=plt.subplots(figsize=(4,4))
+df_plot.mean().plot(kind='bar',  yerr=df_plot.std(), color='grey', ax=axs, zorder=2)
+axs.grid(axis='y', zorder=0)
+axs.set_ylabel('Percentage of days with \nsuperation per season (%)')
+
+#%% Average days per season per type of site
+li_sites_types.reverse()
+df_plot['Types']=li_sites_types
+dfp=df_plot.groupby('Types').mean()
+dfp=dfp.iloc[::-1]
+
+fig, axs=plt.subplots(figsize=(6,3))
+dfp.plot(kind='bar', zorder=3, color = ['royalblue', 'yellowgreen', 'gold', 'orange'], ax=axs)
+axs.grid(axis='y', zorder=1)
+axs.legend(loc=(1.01, 0.5))
+axs.set_ylabel('Percentage of days \nof superation (%)')
+axs.set_xlabel('Types of site')
+#%%Composition on superation days (NR-PM1)
+count_sup, li_sup=[], []
+df_sup, df_sup_count=pd.DataFrame(), pd.DataFrame()
+for i in range(0, len(li_nr)):
+    print(i, li_sites_names[i])
+    a=li_dfs[i].copy(deep=True)
+    a['NR']=li_nr[i].iloc[:,0]
+    a['dt']=li_days[i].loc[:,li_days[i].columns.str.startswith('datetime')]
+    a['date']=a['dt'].dt.date
+    b=a.groupby(a['date']).mean()
+    mask =b['NR']>=limit_who_25_daily
+    c = b.loc[mask].mean(axis=0, numeric_only=True)
+    d = b.loc[mask].count(axis=0, numeric_only=True)
+    c.drop('NR', inplace=True)
+    c.index=['Chl', 'NH4', 'NO3', 'OA', 'SO4']
+    li_sup.append(c)
+    count_sup.append(100*d['NR']/len(b))
+df_sup = pd.DataFrame(li_sup)
+df_sup_count=pd.Series(count_sup)
+df_sup.index = li_sites_names
+df_sup = df_sup[['OA', 'SO4', 'NO3', 'NH4', 'Chl']]
+
+color_nr = ['green', 'red', 'blue', 'gold', 'fuchsia']
+fig, axs = plt.subplots(figsize=(10,4))
+df_sup.plot(kind='bar', stacked=True, ax=axs, color = color_nr, zorder=7, width=0.9)
+axs2=axs.twinx()
+df_sup_count.plot(ax=axs2, marker='D', lw=0, color='k',zorder=8, markersize=3)
+axs.legend(loc=(0.15, -0.5), ncols=5)
+
+axs.set_ylabel('Absolute Concentration \n $(μg·m^{-3})$', fontsize=12)
+axs2.set_ylabel('Percentage of days \nwith superation (%)', fontsize=12)
+axs.set_xlabel('Site', fontsize=12)
+fig.suptitle('Days with superation')
+axs2.set_ylim(-2,100)
+#%% Ordered by perc with superations
+color_nr = ['green', 'red', 'blue', 'gold', 'fuchsia']
+fig, axs = plt.subplots(figsize=(10,4))
+df_sup_count.index=li_sites_names
+df_sup['count']=df_sup_count
+df_sup=df_sup.sort_values(by='count')
+df_sup.plot(y=['OA', 'SO4', 'NO3', 'NH4', 'Chl'], kind='bar', stacked=True, ax=axs, color = color_nr, zorder=7, width=0.9)
+axs2=axs.twinx()
+df_sup['count'].plot(ax=axs2, marker='D', lw=0, color='k',zorder=8, markersize=3)
+axs.legend(loc=(0.15, -0.5), ncols=5)
+axs.set_ylabel('Absolute Concentration \n $(μg·m^{-3})$', fontsize=12)
+axs2.set_ylabel('Percentage of days \nwith superation (%)', fontsize=12)
+axs.set_xlabel('Site', fontsize=12)
+fig.suptitle('Days with superation')
+axs2.set_ylim(-2,100)
+#%% In relative terms
+fig, axs = plt.subplots(figsize=(10,4))
+nr=['OA', 'SO4', 'NO3', 'NH4', 'Chl']
+df_sup_count.index=li_sites_names
+df_sup['count']=df_sup_count
+df_sup=df_sup.sort_values(by='count')
+df_sup['sum']=df_sup[nr].sum(axis=1)
+df_sup_rel = pd.DataFrame({'OA':100*df_sup['OA']/df_sup['sum'], 'SO4':100*df_sup['SO4']/df_sup['sum'],
+                           'NO3':100*df_sup['NO3']/df_sup['sum'], 'NH4':100*df_sup['NH4']/df_sup['sum'], 
+                           'Chl':100*df_sup['Chl']/df_sup['sum']})
+df_sup_rel.plot(y=nr, kind='bar', stacked=True, ax=axs, color = color_nr, zorder=7, width=0.9)
+axs2=axs.twinx()
+df_sup['count'].plot(ax=axs2, marker='D', lw=0, color='k',zorder=8, markersize=3)
+axs.legend(loc=(0.15, -0.5), ncols=5)
+axs.set_ylabel('Absolute Concentration \n $(μg·m^{-3})$', fontsize=12)
+axs2.set_ylabel('Percentage of days \nwith superation (%)', fontsize=12)
+axs.set_xlabel('Site', fontsize=12)
+fig.suptitle('Days with superation')
+
+axs2.set_ylim(-2,100)
 
