@@ -16,12 +16,12 @@ from scipy.stats import linregress
 from scipy import stats
 #%% paths definition
 path_py_mac="/Users/martaviagonzalez/Documents/Documents - MacBook Pro de MVIA/GitHub/All_Treatment"
-path_py_wdws ="C:/Users/maria/Documents/Marta Via/1. PhD/F. Scripts/Python Scripts"
+path_py_wdws =r"C:\Users\marta\Documents\GitHub\All_Treatment"
 path_data_mac="/Users/martaviagonzalez/Documents/Documents - MacBook Pro de MVIA/IDAEA-CSIC/Overview/All/"
-path_data_wdws="C:/Users/maria/Documents/Marta Via/1. PhD/A. Data/Overview/All/"
-path_individual_wdws="C:/Users/maria/Documents/Marta Via/1. PhD/A. Data/Overview/Individual_plots/"
+path_data_wdws=r"C:/Users/marta/Documents/IDAEA-CSIC/Overview/All/"
+path_individual_wdws=r"C:/Users\marta\Documents\IDAEA-CSIC\Overview\Individual_plots"
 path_folder_mac="/Users/martaviagonzalez/Documents/GitHub/EU_Overview/Data/"
-path_folder_wdws = "C:/Users/maria/Documents/GitHub/EU_Overview/Data/"
+path_folder_wdws = r"C:\Users\marta\Documents\GitHub\EU_Overview\Data"
 #
 mac_or_wdws = 'wdws' #Introduce OS here
 #
@@ -45,6 +45,7 @@ from Treatment import *
 trt = Basics(5)
 trt.Hello()
 print(trt.x)
+
 #%% Import Composition files
 os.chdir(path_data)
 all_files=glob.glob(path_data+'*Composition.txt')
@@ -54,10 +55,11 @@ chem_comp['Chemical_composition']=[pd.read_csv(i, sep='\t', na_values='null', ke
 li_sites_names = ['ATOLL', 'BAQS', 'BCN', 'BIR', 'BO', 'CAO-NIC', 'CGR', 'CMN', 'CRE', 
                   'CRP', 'DEM', 'DUB', 'FKL','GRA', 'HEL','HPB', 'HTM', 'INO', 'IPR',  
                   'KOS', 'KRK', 'LON-MR', 'LON-NK', 'LYO', 'MAD-CIE', 'MAG','MAQS', 'MAR-LCP', 
-                  'MEL', 'MET', 'MH', 'MI', 'MSC', 'MSY', 'NOA', 'PAR-BPE', 'PAR-GEN', 'PAR-HAL',
+                  'MEL', 'MET', 'MH', 'MI', 'MSC', 'MSY', 'NOA', 'PAR-GEN','PAR-BPE', 'PAR-HAL',
                   'PD','POI', 'PRE', 'PRG-SUCH','PUY', 'REN', 'RUG',  'SIRTA','SMR', 'SPC',  'STR',
-                  'TAL','TAR','VIR', 'VLN', 'ZEP', 'ZUR'] 
+                  'TAL','TAR','VDA', 'VIR', 'VLN', 'ZEP', 'ZUR'] 
 chem_comp.index = li_sites_names
+
 #%% We import metadatafiles
 os.chdir(path_folder)
 metadata = pd.read_csv("Sites_metadata.txt", sep='\t')
